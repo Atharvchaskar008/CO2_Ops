@@ -1,0 +1,1 @@
+function e(e,t=2){if(!e)return[];let n=[],r=e=>{for(let i of e)i.depth<=t&&i.id&&n.push({id:i.id,title:i.value}),i.children&&r(i.children)};return r(e),n}export{e as t};

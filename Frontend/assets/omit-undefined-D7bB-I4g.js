@@ -1,0 +1,1 @@
+function e(e){let t={};for(let[n,r]of Object.entries(e))r!==void 0&&(t[n]=r);return t}export{e as t};

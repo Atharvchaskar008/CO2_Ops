@@ -1,0 +1,54 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: CO2Ops Daily Metric Snapshot and Model Refresh Lambda
+
+Globals:
+  Function:
+    Timeout: 300
+    MemorySize: 512
+    Runtime: python3.12
+
+Parameters:
+  MetricsBucketName:
+    Type: String
+    Default: co2ops-aws-metrics
+    Description: S3 Bucket to store daily EC2 metric snapshots
+
+Resources:
+  MetricsBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Ref MetricsBucketName
+      VersioningConfiguration:
+        Status: Enabled
+
+  DailySnapshotFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: .
+      Handler: daily_data_snapshot.lambda_handler
+      Environment:
+        Variables:
+          AWS_METRICS_BUCKET: !Ref MetricsBucketName
+      Policies:
+        - S3CrudPolicy:
+            BucketName: !Ref MetricsBucketName
+        - Statement:
+            - Effect: Allow
+              Action:
+                - ec2:DescribeInstances
+                - cloudwatch:GetMetricData
+                - cloudwatch:ListMetrics
+              Resource: "*"
+      Events:
+        DailyCron:
+          Type: Schedule
+          Properties:
+            Schedule: cron(0 0 * * ? *)
+            Name: CO2OpsDailySnapshotTrigger
+            Description: Triggers daily EC2 metric snapshot ingestion at midnight UTC
+
+Outputs:
+  SnapshotFunctionArn:
+    Description: ARN of the Daily Snapshot Lambda Function
+    Value: !GetAtt DailySnapshotFunction.Arn

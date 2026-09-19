@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Product Intelligence & Cloud Sustainability for AWS | CO2Ops</title>
+  <meta name="description" content="Know exactly what AWS infrastructure waste is trying to tell you. Complete your stack with autonomous AI-powered sustainability and FinOps intelligence." />
+  
+  <!-- Preconnect to fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:ital,wght@1,400;1,500;1,600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="./style.css" />
+</head>
+<body>
+  <!-- Embedded Bespoke SVG Sprite for CO2Ops Platform -->
+  <svg style="display: none;" xmlns="http://www.w3.org/2000/svg">
+    <!-- Brand Logo: Eco Cloud with Sustainability Leaf -->
+    <symbol id="icon-co2ops-brand" viewBox="0 0 32 32">
+      <path d="M22 10a7 7 0 0 0-13.4-2.3A7.5 7.5 0 0 0 3 15a7.5 7.5 0 0 0 7.5 7.5H23a6 6 0 0 0 0-12h-1z" fill="none" stroke="#7856ff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M14 22c0-5 3.5-9 8-9 0 5-3.5 9-8 9z" fill="#00a36c" opacity="0.95"/>
+      <path d="M14 22l6-6" stroke="#ffffff" stroke-width="1.75" stroke-linecap="round"/>
+      <circle cx="8" cy="14" r="1" fill="#7856ff"/>
+      <circle cx="12" cy="11" r="1" fill="#7856ff"/>
+    </symbol>
+
+    <!-- AWS EC2 Node Blade -->
+    <symbol id="icon-ec2-node" viewBox="0 0 24 24">
+      <rect x="2.5" y="4" width="19" height="6.5" rx="2" fill="none" stroke="#1f2023" stroke-width="1.75"/>
+      <rect x="2.5" y="13.5" width="19" height="6.5" rx="2" fill="none" stroke="#1f2023" stroke-width="1.75"/>
+      <circle cx="6" cy="7.25" r="1.25" fill="#00a36c"/>
+      <circle cx="9.5" cy="7.25" r="1.25" fill="#7856ff"/>
+      <circle cx="6" cy="16.75" r="1.25" fill="#00a36c"/>
+      <circle cx="9.5" cy="16.75" r="1.25" fill="#7856ff"/>
+      <path d="M14 7.25h5M14 16.75h5" stroke="#8e9099" stroke-width="1.5" stroke-linecap="round"/>
+    </symbol>
+
+    <!-- AWS Graviton ARM64 Processor -->
+    <symbol id="icon-graviton-chip" viewBox="0 0 24 24">
+      <rect x="5" y="5" width="14" height="14" rx="2.5" fill="none" stroke="#7856ff" stroke-width="1.75"/>
+      <path d="M9 9h6v6H9z" fill="#7856ff" fill-opacity="0.2" stroke="#7856ff" stroke-width="1.2"/>
+      <path d="M9 2v3M15 2v3M9 19v3M15 19v3M2 9h3M2 15h3M19 9h3M19 15h3" stroke="#8e9099" stroke-width="1.5" stroke-linecap="round"/>
+      <path d="M11 11h2v2h-2z" fill="#00a36c"/>
+    </symbol>
+
+    <!-- Carbon CO2 Molecule Cloud -->
+    <symbol id="icon-co2-cloud" viewBox="0 0 24 24">
+      <path d="M6.5 19a4.5 4.5 0 0 1-.5-8.97A7 7 0 0 1 19.5 9a5.5 5.5 0 0 1 1.5 10.79" fill="none" stroke="#00a36c" stroke-width="1.75" stroke-linecap="round"/>
+      <circle cx="8" cy="15" r="1.5" fill="#00a36c"/>
+      <circle cx="15.5" cy="15" r="1.5" fill="#00a36c"/>
+      <path d="M10 15h4" stroke="#00a36c" stroke-width="1.5" stroke-linecap="round"/>
+    </symbol>
+
+    <!-- 7-Day ARIMA Predictive Curve -->
+    <symbol id="icon-arima-chart" viewBox="0 0 24 24">
+      <path d="M3 20h18M3 16l4-5 4 3 5-7 5 3" fill="none" stroke="#2563eb" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M16 7l5 3v5l-5-2z" fill="#2563eb" fill-opacity="0.2"/>
+      <line x1="3" y1="9" x2="21" y2="9" stroke="#d97706" stroke-width="1" stroke-dasharray="2 2"/>
+    </symbol>
+
+    <!-- Zero-Downtime Safe Shield -->
+    <symbol id="icon-safe-shield" viewBox="0 0 24 24">
+      <path d="M12 3l8 4v6c0 5-3.5 9.5-8 11-4.5-1.5-8-6-8-11V7l8-4z" fill="none" stroke="#00a36c" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M9 12l2 2 4-4" fill="none" stroke="#00a36c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    </symbol>
+
+    <!-- FinOps Cost Trajectory -->
+    <symbol id="icon-finops-spend" viewBox="0 0 24 24">
+      <path d="M3 6l7 7 4-4 7 7M21 16v-6h-6" fill="none" stroke="#d97706" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+      <circle cx="6" cy="18" r="3" fill="none" stroke="#8e9099" stroke-width="1.5"/>
+      <path d="M6 16.5v3M4.5 18h3" stroke="#8e9099" stroke-width="1.2"/>
+    </symbol>
+
+    <!-- Amazon S3 Storage Bucket -->
+    <symbol id="icon-s3-bucket" viewBox="0 0 24 24">
+      <ellipse cx="12" cy="6" rx="8" ry="3" fill="none" stroke="#7856ff" stroke-width="1.75"/>
+      <path d="M4 6v6c0 1.66 3.58 3 8 3s8-1.34 8-3V6" fill="none" stroke="#7856ff" stroke-width="1.75"/>
+      <path d="M4 12v6c0 1.66 3.58 3 8 3s8-1.34 8-3v-6" fill="none" stroke="#7856ff" stroke-width="1.75"/>
+    </symbol>
+
+    <!-- Mixpanel Spark AI Icon -->
+    <symbol id="icon-copilot-spark" viewBox="0 0 24 24">
+      <path d="M12 2L14.4 8.6L21 11L14.4 13.4L12 20L9.6 13.4L3 11L9.6 8.6L12 2Z" fill="url(#spark-grad-mp)"/>
+      <defs>
+        <linearGradient id="spark-grad-mp" x1="3" y1="2" x2="21" y2="20" gradientUnits="userSpaceOnUse">
+          <stop stop-color="#7856ff"/>
+          <stop offset="1" stop-color="#00a36c"/>
+        </linearGradient>
+      </defs>
+    </symbol>
+
+    <!-- Down Chevron -->
+    <symbol id="icon-chevron-down" viewBox="0 0 8 6">
+      <path d="M5.33337 0.644776L2.83337 3.14478L0.333374 0.644775" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+    </symbol>
+  </svg>
+
+  <!-- 1. Mixpanel Top Notification Banner -->
+  <aside class="mp-top-banner">
+    <span>Experiments and 7-Day ARIMA Gating are now active across all AWS regions!</span>
+    <a href="./workspace.html" class="mp-banner-link">
+      <span>Try in Workspace</span>
+      <span aria-hidden="true">→</span>
+    </a>
+  </aside>
+
+  <!-- 2. Sticky Mixpanel Header -->
+  <header class="mp-header">
+    <div class="mp-container mp-header-inner">
+      <a href="./index.html" class="mp-logo">
+        <svg width="30" height="30"><use href="#icon-co2ops-brand"/></svg>
+        <span class="mp-logo-text">CO2Ops</span>
+      </a>
+
+      <nav class="mp-nav-menu">
+        <a href="#telemetry" class="mp-nav-item">
+          <span>Platform</span>
+          <svg width="8" height="6"><use href="#icon-chevron-down"/></svg>
+        </a>
+        <a href="#insights" class="mp-nav-item">
+          <span>Solutions</span>
+          <svg width="8" height="6"><use href="#icon-chevron-down"/></svg>
+        </a>
+        <a href="#validation" class="mp-nav-item">
+          <span>ARIMA Gating</span>
+        </a>
+        <a href="#why-co2ops" class="mp-nav-item">
+          <span>Why CO2Ops</span>
+        </a>
+        <a href="http://127.0.0.1:8080/docs" target="_blank" class="mp-nav-item">
+          <span>API Docs</span>
+        </a>
+      </nav>
+
+      <div class="mp-header-actions">
+        <a href="./workspace.html" class="mp-btn-text">Log In</a>
+        <a href="./workspace.html" class="mp-btn-pill-primary">
+          <span>Get Started Free</span>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- 3. Mixpanel Hero Section -->
+  <section class="mp-hero">
+    <div class="mp-container">
+      <div class="mp-hero-tag">CO2Ops is for engineering teams that move. Make your move.</div>
+      
+      <h1 class="mp-hero-h1">
+        Build like zero cloud waste <br />
+        <span class="mp-editorial-italic">is engineered right into AWS</span>
+      </h1>
+
+      <p class="mp-hero-sub">
+        Know exactly what AWS infrastructure waste is trying to tell you. Complete your stack with autonomous AI-powered sustainability, real-time telemetry audits, and FinOps intelligence.
+      </p>
+
+      <div class="mp-hero-actions">
+        <a href="./workspace.html" class="mp-btn-pill-purple">
+          <span>Get Started Free</span>
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M6 12L10 8L6 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </a>
+        <a href="#telemetry" class="mp-btn-pill-secondary">
+          <span>Explore Platform</span>
+        </a>
+      </div>
+
+      <div class="mp-hero-review">
+        <span class="mp-stars">★★★★★</span>
+        <span>4.9 / 5.0 score with 250+ enterprise reviews</span>
+      </div>
+
+      <!-- Hero Product Showcase Window (Mixpanel Analytics Console Replica) -->
+      <div class="mp-showcase-container">
+        <div class="mp-showcase-window">
+          <!-- Window Header -->
+          <div class="mp-showcase-topbar">
+            <div class="mp-window-controls">
+              <span class="mp-win-dot d1"></span>
+              <span class="mp-win-dot d2"></span>
+              <span class="mp-win-dot d3"></span>
+            </div>
+
+            <div class="mp-showcase-tabs">
+              <span class="mp-tab-item active">Insights</span>
+              <span class="mp-tab-item">Funnels</span>
+              <span class="mp-tab-item">Retention</span>
+              <span class="mp-tab-item">ARIMA Forecaster</span>
+            </div>
+
+            <div class="mp-live-tag">
+              <span class="mp-live-dot"></span>
+              <span>Live AWS Swarm Active</span>
+            </div>
+          </div>
+
+          <!-- Mixpanel Query Builder Bar -->
+          <div class="mp-query-bar">
+            <div class="mp-query-group">
+              <span class="mp-query-label">Show</span>
+              <span class="mp-query-chip purple">
+                <svg width="14" height="14"><use href="#icon-ec2-node"/></svg>
+                <span>EC2 CPU % &amp; Carbon kg</span>
+              </span>
+            </div>
+            <div class="mp-query-group">
+              <span class="mp-query-label">Measured as</span>
+              <span class="mp-query-chip">Average &amp; P95 Peak</span>
+            </div>
+            <div class="mp-query-group">
+              <span class="mp-query-label">Breakdown by</span>
+              <span class="mp-query-chip">AWS Region (us-east-1, eu-west-1)</span>
+            </div>
+            <div class="mp-query-group">
+              <span class="mp-query-label">Target</span>
+              <span class="mp-query-chip">AWS Graviton m6g</span>
+            </div>
+          </div>
+
+          <!-- Showcase Canvas & Chart -->
+          <div class="mp-showcase-body">
+            <div class="mp-chart-legend">
+              <div class="mp-legend-item">
+                <span class="mp-legend-color c1"></span>
+                <span>Current Fleet Footprint (m5.2xlarge - 1,780 kg CO2e)</span>
+              </div>
+              <div class="mp-legend-item">
+                <span class="mp-legend-color c2"></span>
+                <span>Post-Graviton Rightsizing (m6g.large - 360 kg CO2e)</span>
+              </div>
+              <div class="mp-legend-item">
+                <span class="mp-legend-color c3"></span>
+                <span>7-Day ARIMA Safe Ceiling (&lt; 30% Max Load)</span>
+              </div>
+            </div>
+
+            <!-- Multi-Series SVG Curve -->
+            <div class="mp-chart-canvas-wrap">
+              <svg viewBox="0 0 1000 220" preserveAspectRatio="none">
+                <!-- Background grid lines -->
+                <line x1="0" y1="40" x2="1000" y2="40" stroke="#f1f1f5" stroke-width="1"/>
+                <line x1="0" y1="100" x2="1000" y2="100" stroke="#f1f1f5" stroke-width="1"/>
+                <line x1="0" y1="160" x2="1000" y2="160" stroke="#f1f1f5" stroke-width="1"/>
+
+                <!-- Baseline current waste curve (Purple) -->
+                <path d="M0,130 C120,110 200,160 350,120 C500,80 650,140 800,90 L1000,110" fill="none" stroke="#7856ff" stroke-width="3"/>
+                <!-- Post-optimization trajectory (Green) -->
+                <path d="M0,190 C120,185 200,195 350,175 C500,170 650,180 800,165 L1000,160" fill="none" stroke="#00a36c" stroke-width="3"/>
+                <!-- Safe Ceiling Threshold (Blue Dash) -->
+                <line x1="0" y1="70" x2="1000" y2="70" stroke="#2563eb" stroke-width="1.5" stroke-dasharray="4 4"/>
+              </svg>
+            </div>
+
+            <!-- Mixpanel AI Agent Callout Overlay -->
+            <div class="mp-agent-callout">
+              <div class="mp-agent-spark-icon">
+                <svg width="20" height="20"><use href="#icon-copilot-spark"/></svg>
+              </div>
+              <div class="mp-agent-callout-content">
+                <div class="mp-agent-header">
+                  <span class="mp-agent-badge">Root Cause Analysis Agent</span>
+                  <span class="mp-agent-time">Just now</span>
+                </div>
+                <div class="mp-agent-message">
+                  Diagnosed <strong>7 underutilized EC2 instances</strong> across <code>us-east-1</code> and <code>eu-west-1</code> averaging only 14.2% CPU. Transitioning to <strong>AWS Graviton m6g.large</strong> eliminates <strong>1,420 kg CO2e/mo (-79.9%)</strong> and recovers <strong>$4,820/mo in waste</strong> with zero downtime.
+                </div>
+                <div class="mp-agent-action-row">
+                  <a href="./workspace.html?prompt=Migrate%20underutilized%20instances%20to%20Graviton%20m6g.large%20safely" class="mp-btn-action-small">
+                    Execute Safe Migration ➔
+                  </a>
+                  <a href="./workspace.html?prompt=Forecast%207-day%20CPU%20load%20for%20fleet" class="mp-btn-text" style="padding: 4px 10px; font-size: 0.775rem;">
+                    View ARIMA Forecast
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4. Logos Strip (Mixpanel Style) -->
+  <section class="mp-logos-strip">
+    <div class="mp-container">
+      <div class="mp-logos-title">Trusted by forward-thinking teams cutting AWS compute waste</div>
+      <div class="mp-logos-grid">
+        <div class="mp-logo-partner">
+          <svg width="24" height="24"><use href="#icon-graviton-chip"/></svg>
+          <span>AWS Partner Network</span>
+        </div>
+        <div class="mp-logo-partner">
+          <svg width="24" height="24"><use href="#icon-co2-cloud"/></svg>
+          <span>Climatiq Emissions</span>
+        </div>
+        <div class="mp-logo-partner">
+          <svg width="24" height="24"><use href="#icon-finops-spend"/></svg>
+          <span>FinOps Foundation</span>
+        </div>
+        <div class="mp-logo-partner">
+          <svg width="24" height="24"><use href="#icon-safe-shield"/></svg>
+          <span>CloudZero</span>
+        </div>
+        <div class="mp-logo-partner">
+          <svg width="24" height="24"><use href="#icon-s3-bucket"/></svg>
+          <span>Amazon S3 Reports</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5. Mixpanel Pillar 1: "Get from data to decision at AI speed" -->
+  <section id="telemetry" class="mp-pillar-section">
+    <div class="mp-container">
+      <div class="mp-pillar-row">
+        <div>
+          <span class="mp-pillar-tag">Fleet Telemetry &amp; Scout</span>
+          <h2 class="mp-pillar-h2">Get from telemetry to decision at AI speed</h2>
+          <p class="mp-pillar-desc">
+            Autonomous sub-agents monitor your AWS fleet continuously, surface infrastructure waste before you think to ask, and tell your engineering team exactly what to do next.
+          </p>
+          <ul class="mp-pillar-bullets">
+            <li class="mp-bullet-item">
+              <span class="mp-bullet-check">✓</span>
+              <span><strong>Context Engine &amp; Verified Mode:</strong> Ingests CloudWatch telemetry without sampling drift or guesswork.</span>
+            </li>
+            <li class="mp-bullet-item">
+              <span class="mp-bullet-check">✓</span>
+              <span><strong>Root Cause Analysis Agent:</strong> Automatically identifies over-provisioned instance types across all regions.</span>
+            </li>
+            <li class="mp-bullet-item">
+              <span class="mp-bullet-check">✓</span>
+              <span><strong>DuckDB SQL Acceleration:</strong> Ultra-fast in-memory analytics querying live EC2 inventories.</span>
+            </li>
+          </ul>
+          <a href="./workspace.html" class="mp-btn-pill-primary">
+            <span>Explore Telemetry Scout ➔</span>
+          </a>
+        </div>
+
+        <div class="mp-pillar-visual">
+          <h4 class="mp-card-title">Live AWS EC2 Fleet Telemetry</h4>
+          <div class="mp-stat-row">
+            <span class="mp-stat-label">Scanned Instances (us-east-1)</span>
+            <span class="mp-stat-value">10 Compute Nodes</span>
+          </div>
+          <div class="mp-stat-row">
+            <span class="mp-stat-label">Underutilized (&lt; 30% CPU)</span>
+            <span class="mp-stat-value purple">7 Instances Flagged</span>
+          </div>
+          <div class="mp-stat-row">
+            <span class="mp-stat-label">Current Fleet Spend</span>
+            <span class="mp-stat-value">$6,712.40 / mo</span>
+          </div>
+          <div class="mp-stat-row">
+            <span class="mp-stat-label">Monthly Recoverable Waste</span>
+            <span class="mp-stat-value green">-$4,820.16 / mo (-71.8%)</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 6. Mixpanel Pillar 2: "Align on what's next with real-time, self-serve insights" -->
+  <section id="insights" class="mp-pillar-section" style="background: var(--mp-surface-white);">
+    <div class="mp-container">
+      <div class="mp-pillar-row reverse">
+        <div>
+          <span class="mp-pillar-tag">FinOps &amp; Carbon Abatement</span>
+          <h2 class="mp-pillar-h2">Align on what's next with real-time, self-serve insights</h2>
+          <p class="mp-pillar-desc">
+            Discover critical cost leaks and calibrate compute journeys to optimize every AWS EC2 workload for maximum ROI and carbon reduction.
+          </p>
+          <ul class="mp-pillar-bullets">
+            <li class="mp-bullet-item">
+              <span class="mp-bullet-check">✓</span>
+              <span><strong>AWS Graviton Architecture:</strong> Seamlessly profiles x86 workloads for ARM64 transition (m6g, c6g, t4g).</span>
+            </li>
+            <li class="mp-bullet-item">
+              <span class="mp-bullet-check">✓</span>
+              <span><strong>Climatiq Carbon Model:</strong> Computes exact kWh and kg CO2e differences factoring regional grid emission factors.</span>
+            </li>
+            <li class="mp-bullet-item">
+              <span class="mp-bullet-check">✓</span>
+              <span><strong>AWS Pricing API Integration:</strong> Real-time on-demand and savings-plan rate comparisons.</span>
+            </li>
+          </ul>
+          <a href="./workspace.html" class="mp-btn-pill-primary">
+            <span>Calculate Graviton Savings ➔</span>
+          </a>
+        </div>
+
+        <div class="mp-pillar-visual">
+          <h4 class="mp-card-title">Instance Migration Impact Delta</h4>
+          <div class="mp-stat-row">
+            <span class="mp-stat-label">Source Node</span>
+            <span class="mp-stat-value">m5.2xlarge ($0.384/hr)</span>
+          </div>
+          <div class="mp-stat-row">
+            <span class="mp-stat-label">Recommended Target</span>
+            <span class="mp-stat-value green">m6g.large ($0.077/hr)</span>
+          </div>
+          <div class="mp-stat-row">
+            <span class="mp-stat-label">Monthly Cost Reduction</span>
+            <span class="mp-stat-value green">-$248.16 / mo (-80.0%)</span>
+          </div>
+          <div class="mp-stat-row">
+            <span class="mp-stat-label">Annual Carbon Abatement</span>
+            <span class="mp-stat-value green">-863.4 kg CO2e / yr</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 7. Mixpanel Pillar 3: "Validate and ship with confidence" -->
+  <section id="validation" class="mp-pillar-section">
+    <div class="mp-container">
+      <div class="mp-pillar-row">
+        <div>
+          <span class="mp-pillar-tag">7-Day Statistical ARIMA</span>
+          <h2 class="mp-pillar-h2">Validate and ship with confidence</h2>
+          <p class="mp-pillar-desc">
+            Let autonomous statistical ARIMA models validate workload capacity for zero risk, then execute safe instance migrations with zero downtime.
+          </p>
+          <ul class="mp-pillar-bullets">
+            <li class="mp-bullet-item">
+              <span class="mp-bullet-check">✓</span>
+              <span><strong>Mathematical Safety Gating:</strong> Rejects any migration if projected P95 utilization exceeds 30% compute ceiling.</span>
+            </li>
+            <li class="mp-bullet-item">
+              <span class="mp-bullet-check">✓</span>
+              <span><strong>Zero-Downtime State Machine:</strong> Gracefully stops, modifies EC2 attributes, boots up, and verifies health status.</span>
+            </li>
+            <li class="mp-bullet-item">
+              <span class="mp-bullet-check">✓</span>
+              <span><strong>Instant Automated Rollback:</strong> Returns to original instance size immediately if health checks fail.</span>
+            </li>
+          </ul>
+          <a href="./workspace.html" class="mp-btn-pill-primary">
+            <span>Test Safe Execution Gate ➔</span>
+          </a>
+        </div>
+
+        <div class="mp-pillar-visual">
+          <h4 class="mp-card-title">7-Day ARIMA Safety Envelope</h4>
+          <div class="mp-stat-row">
+            <span class="mp-stat-label">Target Instance</span>
+            <span class="mp-stat-value">i-01a2b3c4d5e6f7g80</span>
+          </div>
+          <div class="mp-stat-row">
+            <span class="mp-stat-label">Projected 7-Day Peak Load</span>
+            <span class="mp-stat-value green">19.8% (Under 30% Ceiling)</span>
+          </div>
+          <div class="mp-stat-row">
+            <span class="mp-stat-label">Execution Verdict</span>
+            <span class="mp-stat-value green">SAFETY GATE: PASSED</span>
+          </div>
+          <div class="mp-stat-row">
+            <span class="mp-stat-label">Downtime Risk</span>
+            <span class="mp-stat-value green">0.0% (Zero Downtime)</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 8. Mixpanel Bento Grid: "Why the best product builders choose CO2Ops" -->
+  <section id="why-co2ops" class="mp-bento-section">
+    <div class="mp-container">
+      <div class="mp-bento-header">
+        <span class="mp-pillar-tag">Enterprise Architecture</span>
+        <h2 class="mp-pillar-h2">Why the best engineering teams choose CO2Ops</h2>
+        <p class="mp-pillar-desc">Built to evolve with your cloud infrastructure — from fast-growing startups to global multi-region fleets.</p>
+      </div>
+
+      <div class="mp-bento-grid">
+        <div class="mp-bento-card bg-cream mp-bento-col-2">
+          <div class="mp-bento-icon">
+            <svg width="22" height="22"><use href="#icon-ec2-node"/></svg>
+          </div>
+          <h3 class="mp-bento-h3">Deep AWS Native Telemetry &amp; DuckDB</h3>
+          <p class="mp-bento-p">
+            With lightning-speed queries powered by our embedded columnar SQL engine, you can spot critical compute waste and anomalies across thousands of EC2 instances in seconds.
+          </p>
+        </div>
+
+        <div class="mp-bento-card bg-mint">
+          <div class="mp-bento-icon">
+            <svg width="22" height="22"><use href="#icon-safe-shield"/></svg>
+          </div>
+          <h3 class="mp-bento-h3">Zero-Downtime Safe Execution</h3>
+          <p class="mp-bento-p">
+            Automated boto3 state machines with automated rollback protection ensure production workloads never suffer outages.
+          </p>
+        </div>
+
+        <div class="mp-bento-card bg-purple">
+          <div class="mp-bento-icon">
+            <svg width="22" height="22"><use href="#icon-graviton-chip"/></svg>
+          </div>
+          <h3 class="mp-bento-h3">Work in Plain English or in Code</h3>
+          <p class="mp-bento-p">
+            Interact with our conversational multi-agent console or trigger programmatic optimization loops via simple Python REST calls.
+          </p>
+        </div>
+
+        <div class="mp-bento-card bg-gray mp-bento-col-2">
+          <div class="mp-bento-icon">
+            <svg width="22" height="22"><use href="#icon-s3-bucket"/></svg>
+          </div>
+          <h3 class="mp-bento-h3">Automated S3 Executive Reports &amp; Slides</h3>
+          <p class="mp-bento-p">
+            Auto-synthesizes weekly sustainability reports and generates polished PowerPoint slide decks (.pptx) stored in Amazon S3 with pre-signed download URLs.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 9. Testimonial Section -->
+  <section class="mp-testimonial-section">
+    <div class="mp-container">
+      <div class="mp-quote-mark">“</div>
+      <p class="mp-testimonial-text">
+        CO2Ops completely transformed how our DevOps organization thinks about AWS sustainability. We cut our monthly EC2 compute bill by 72% and abated tons of CO2e within our first 30 days.
+      </p>
+      <div class="mp-author-row">
+        <div class="mp-author-avatar">SC</div>
+        <div class="mp-author-info">
+          <div class="mp-author-name">Sarah Chen</div>
+          <div class="mp-author-title">VP of Cloud Infrastructure &amp; FinOps</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 10. Mixpanel Call-to-Action Section -->
+  <section class="mp-cta-section">
+    <div class="mp-container">
+      <h2 class="mp-cta-h2">CO2Ops is for teams that move. <br />Make your move.</h2>
+      <p class="mp-cta-p">Join leading engineering teams eliminating cloud waste and slashing carbon emissions autonomously.</p>
+      <a href="./workspace.html" class="mp-btn-pill-purple">
+        <span>Get Started Free</span>
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M6 12L10 8L6 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </a>
+    </div>
+  </section>
+
+  <!-- 11. Mixpanel 5-Column Footer -->
+  <footer class="mp-footer">
+    <div class="mp-container">
+      <div class="mp-footer-grid">
+        <div class="mp-footer-brand">
+          <a href="./index.html" class="mp-logo" style="color: #ffffff;">
+            <svg width="28" height="28"><use href="#icon-co2ops-brand"/></svg>
+            <span class="mp-logo-text" style="color: #ffffff;">CO2Ops</span>
+          </a>
+          <p>Autonomous Cloud Sustainability &amp; FinOps Product Intelligence for Amazon Web Services.</p>
+          <div class="mp-footer-status">
+            <span class="mp-live-dot"></span>
+            <span>All AWS Sub-Agents Operational</span>
+          </div>
+        </div>
+
+        <div class="mp-footer-col">
+          <h5>Platform</h5>
+          <ul>
+            <li><a href="./workspace.html">Agent Workspace</a></li>
+            <li><a href="#telemetry">Fleet Telemetry</a></li>
+            <li><a href="#validation">ARIMA Forecaster</a></li>
+            <li><a href="#insights">Graviton Rightsizing</a></li>
+          </ul>
+        </div>
+
+        <div class="mp-footer-col">
+          <h5>Solutions</h5>
+          <ul>
+            <li><a href="#insights">FinOps Abatement</a></li>
+            <li><a href="#telemetry">CloudZero Waste</a></li>
+            <li><a href="#validation">Zero-Downtime Safe Ops</a></li>
+            <li><a href="#why-co2ops">Executive S3 Reports</a></li>
+          </ul>
+        </div>
+
+        <div class="mp-footer-col">
+          <h5>Resources</h5>
+          <ul>
+            <li><a href="http://127.0.0.1:8080/docs" target="_blank">API Documentation</a></li>
+            <li><a href="https://aws.amazon.com/ec2/graviton/" target="_blank" rel="noopener">AWS Graviton</a></li>
+            <li><a href="https://www.climatiq.io/" target="_blank" rel="noopener">Climatiq API</a></li>
+            <li><a href="https://mixpanel.com" target="_blank" rel="noopener">Mixpanel Reference</a></li>
+          </ul>
+        </div>
+
+        <div class="mp-footer-col">
+          <h5>Company</h5>
+          <ul>
+            <li><a href="#why-co2ops">About CO2Ops</a></li>
+            <li><a href="./workspace.html">Launch Console</a></li>
+            <li><a href="mailto:support@co2ops.io">Contact Team</a></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="mp-footer-bottom">
+        <p>© 2026 CO2Ops. All rights reserved. Built with Google ADK for Amazon Web Services.</p>
+        <div>English (US) • Security &amp; Privacy • Status</div>
+      </div>
+    </div>
+  </footer>
+
+  <script src="./main.js"></script>
+</body>
+</html>

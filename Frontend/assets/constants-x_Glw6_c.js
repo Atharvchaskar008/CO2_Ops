@@ -1,0 +1,1 @@
+var e=`Interfere`,t=`https://interfere.com`,n=`@interfere_`,r={url:`${t}/og/opengraph-image.png`,width:1200,height:630,alt:e},i={light:`/icons/favicon/light.png`,dark:`/icons/favicon/dark.png`,ico:`/icons/favicon/favicon.ico`,appleTouch:`/icons/apple-touch-icon.png`,manifest:`/manifest.webmanifest`};export{n as a,i,e as n,r,t};

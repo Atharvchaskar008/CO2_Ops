@@ -1,0 +1,30 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: ./co2ops_agent
+      dockerfile: Dockerfile
+    container_name: co2ops-aws-backend
+    ports:
+      - "8080:8080"
+    environment:
+      - AWS_DEFAULT_REGION=us-east-1
+      - AWS_METRICS_BUCKET=co2ops-metrics-storage
+      - AWS_REPORTS_BUCKET=co2ops-reports-storage
+      - CLIMATIQ_API_KEY=${CLIMATIQ_API_KEY:-}
+      - GEMINI_API_KEY=${GEMINI_API_KEY:-}
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID:-}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY:-}
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./Frontend
+      dockerfile: Dockerfile
+    container_name: co2ops-aws-frontend
+    ports:
+      - "8501:80"
+    depends_on:
+      - backend
+    restart: unless-stopped

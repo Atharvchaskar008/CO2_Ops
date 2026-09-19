@@ -1,0 +1,10 @@
+interfere.com/
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.adk/
+charts/
+reports/
+presentations/
+.DS_Store

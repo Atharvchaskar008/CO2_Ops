@@ -1,0 +1,1 @@
+import{n as e,o as t}from"./src-l6OF3cyd.js";var n=t();function r({className:t,maxWidth:r=1200,style:i,...a}){return(0,n.jsx)(`div`,{className:e(`mx-auto w-full max-w-[calc(var(--constrained-max)+var(--spacing)*6*2)] px-6 sm:max-w-[calc(var(--constrained-max)+var(--spacing)*5.5*2)] sm:px-5.5`,t),style:{"--constrained-max":`${r}px`,...i},...a})}export{r as t};
