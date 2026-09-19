@@ -1,5 +1,5 @@
 """
-CO2Ops - AWS Bedrock Migration Foundation: BedrockAgent
+CO2Ops - AWS Bedrock Foundation: BedrockAgent
 Base class for agents running on AWS Bedrock Converse API with structured state management.
 """
 

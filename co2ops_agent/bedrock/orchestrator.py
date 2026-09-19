@@ -1,5 +1,5 @@
 """
-CO2Ops - AWS Bedrock Migration Foundation: Pipeline & Orchestrator
+CO2Ops - AWS Bedrock Foundation: Pipeline & Orchestrator
 Coordinates Bedrock agents, manages multi-step execution flows, and propagates shared CO2OpsState.
 """
 

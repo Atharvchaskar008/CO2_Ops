@@ -1,5 +1,5 @@
 """
-CO2Ops - AWS Bedrock Migration Foundation: State Management
+CO2Ops - AWS Bedrock Foundation: State Management
 Defines the shared state container for passing data between Bedrock-based agents.
 """
 

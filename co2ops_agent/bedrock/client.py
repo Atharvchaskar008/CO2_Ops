@@ -1,5 +1,5 @@
 """
-CO2Ops - AWS Bedrock Migration Foundation: Model Client Wrapper
+CO2Ops - AWS Bedrock Foundation: Model Client Wrapper
 Wraps the boto3 Bedrock Runtime Converse API for structured LLM interactions.
 Uses environment/IAM-based AWS authentication. Never hardcodes credentials.
 """

@@ -1,5 +1,5 @@
 """
-CO2Ops - AWS Bedrock Migration Foundation
+CO2Ops - AWS Bedrock Foundation
 Provides AWS-native state, model client, agent abstractions, and execution pipelines.
 """
 
