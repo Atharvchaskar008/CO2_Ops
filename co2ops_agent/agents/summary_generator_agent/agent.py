@@ -1,16 +1,13 @@
-from google.adk.tools.agent_tool import AgentTool
+from co2ops_agent.bedrock.agent import BedrockAgent
 from co2ops_agent.agents.optimization_advisor_agent.agent import optimization_advisor_agent
-from google.adk.agents import LlmAgent
 from .tools.tools import create_google_doc, get_weekly_data, get_forecast_information
-import os
 from co2ops_agent.agents.presentation_generator_agent.agent import presentation_generator_agent
 
 
-summary_generator_agent = LlmAgent(
+summary_generator_agent = BedrockAgent(
     name="weekly_summary_agent",
-    model="gemini-2.0-flash",
     description="Generates a weekly AWS sustainability report with embedded charts and metrics.",
-    instruction="""
+    system_instruction="""
 You are the Weekly Summary Agent for CO2Ops AWS Sustainability. Your task is to generate a comprehensive weekly executive report as a Markdown document with embedded charts and metrics.
 
 ---
@@ -101,9 +98,9 @@ Ensure you've followed all steps and called all necessary tools
 """,
     tools=[
         get_weekly_data,
-        AgentTool(optimization_advisor_agent),
         get_forecast_information,
         create_google_doc
     ],
-    sub_agents=[presentation_generator_agent],
+    output_state_key="weekly_summary"
 )
+summary_generator_agent.sub_agents = [presentation_generator_agent]
