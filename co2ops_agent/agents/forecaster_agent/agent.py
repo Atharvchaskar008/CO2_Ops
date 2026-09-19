@@ -1,13 +1,19 @@
-from google.adk.agents import LlmAgent
 import datetime
 import hashlib
 import logging
 import os
 import re
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional
 import numpy as np
 import pandas as pd
-from statsmodels.tsa.arima.model import ARIMA
+try:
+    from statsmodels.tsa.arima.model import ARIMA
+except Exception:
+    ARIMA = None
+
+
+from co2ops_agent.bedrock.agent import BedrockAgent
+from co2ops_agent.bedrock.state import CO2OpsState
 
 logger = logging.getLogger(__name__)
 
@@ -96,9 +102,13 @@ def generate_aws_forecast(instance_id: str, metric: str = "cpu", horizon_days: i
 
     # 2. Fit ARIMA model
     try:
-        model = ARIMA(history, order=(1, 0, 0)).fit()
-        forecast_values = model.forecast(steps=horizon_days)
-        forecast_values = [round(max(0.0, float(v)), 3) for v in forecast_values]
+        if ARIMA is not None:
+            model = ARIMA(history, order=(1, 0, 0)).fit()
+            forecast_values = model.forecast(steps=horizon_days)
+            forecast_values = [round(max(0.0, float(v)), 3) for v in forecast_values]
+        else:
+            avg = float(np.mean(history))
+            forecast_values = [round(avg + float(np.random.normal(0, 0.5)), 3) for _ in range(horizon_days)]
     except Exception as e:
         logger.warning(f"ARIMA fit fallback: {e}")
         avg = float(np.mean(history))
@@ -130,16 +140,30 @@ def generate_aws_forecast(instance_id: str, metric: str = "cpu", horizon_days: i
     }
 
 
-def execute_forecast_query(query_or_text: str) -> dict:
+def execute_forecast_query(query_or_text: str, state: Optional[CO2OpsState] = None) -> dict:
     """
     Parses request text or SQL-like syntax and executes the Python ARIMA forecast.
-    Maintains compatibility with Google ADK tool call expectations.
+    Consumes recommendation/workload data from state if instance_id is not in text.
+    Stores forecast result directly into CO2OpsState when state is provided.
     """
     text = str(query_or_text)
 
     # Extract instance id (e.g. i-0123456789abcdef0 or instance-...)
     inst_match = re.search(r'(i-[0-9a-fA-F]{8,17}|instance-[a-zA-Z0-9_\-]+)', text)
-    instance_id = inst_match.group(1) if inst_match else "i-0987654321fedcba0"
+    instance_id = None
+    if inst_match:
+        instance_id = inst_match.group(1)
+    elif state is not None:
+        # Consume recommendation / workload data from state
+        rec_text = str(state.final_recommendations or state.analysis_results or "")
+        rec_match = re.search(r'(i-[0-9a-fA-F]{8,17}|instance-[a-zA-Z0-9_\-]+)', rec_text)
+        if rec_match:
+            instance_id = rec_match.group(1)
+        elif state.infra_data and len(state.infra_data) > 0:
+            instance_id = state.infra_data[0].get("Instance_ID")
+
+    if not instance_id:
+        instance_id = "i-0987654321fedcba0"
 
     # Extract metric
     if "mem" in text.lower():
@@ -153,14 +177,21 @@ def execute_forecast_query(query_or_text: str) -> dict:
     horizon_match = re.search(r'(\d+)\s*(?:days?|AS horizon)', text, re.IGNORECASE)
     horizon_days = int(horizon_match.group(1)) if horizon_match else 7
 
-    return generate_aws_forecast(instance_id, metric, horizon_days)
+    result = generate_aws_forecast(instance_id, metric, horizon_days)
+
+    # Store forecast in CO2OpsState
+    if state is not None:
+        state.forecast_data = result
+        state.set("forecast_data", result)
+
+    return result
 
 
-forecasting_tool_agent = LlmAgent(
+# Define the AWS Bedrock agent (replaces Google ADK LlmAgent)
+forecasting_tool_agent = BedrockAgent(
     name="forecasting_tool_agent",
-    model="gemini-2.0-flash",
     description="Forecasts CPU, memory, or carbon usage for AWS EC2 instances using statistical ARIMA time-series models.",
-    instruction="""
+    system_instruction="""
     You are an AWS infrastructure forecasting agent that predicts future CPU utilization, memory utilization, or carbon emissions for AWS EC2 instances over 7 days.
 
     Your responsibilities:
@@ -176,7 +207,8 @@ forecasting_tool_agent = LlmAgent(
     Return the final table directly and clearly.
     """,
     tools=[execute_forecast_query],
-    output_key="forecast_analysis"
+    input_state_key="final_recommendations",
+    output_state_key="forecast_data"
 )
 
 # Alias for backward compatibility
