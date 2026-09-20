@@ -6,7 +6,8 @@
 param(
     [string]$AwsRegion = "us-east-1",
     [string]$BackendRepo = "co2ops-backend",
-    [string]$FrontendRepo = "co2ops-frontend"
+    [string]$FrontendRepo = "co2ops-frontend",
+    [switch]$DeploySageMaker = $false
 )
 
 $ErrorActionPreference = "Stop"
@@ -17,7 +18,7 @@ Write-Host " Targets: Amazon ECR, AWS App Runner / ECS, Amazon S3, SageMaker" -F
 Write-Host "=================================================================" -ForegroundColor Cyan
 
 # 1. Check AWS CLI Authentication
-Write-Host "`n[1/6] Verifying AWS CLI authentication..." -ForegroundColor Yellow
+Write-Host "`n[1/7] Verifying AWS CLI authentication..." -ForegroundColor Yellow
 try {
     $CallerIdentity = aws sts get-caller-identity | ConvertFrom-Json
     $AccountId = $CallerIdentity.Account
@@ -30,11 +31,11 @@ try {
 $EcrRegistry = "$AccountId.dkr.ecr.$AwsRegion.amazonaws.com"
 
 # 2. Authenticate Docker to Amazon ECR
-Write-Host "`n[2/6] Logging in to Amazon ECR ($EcrRegistry)..." -ForegroundColor Yellow
+Write-Host "`n[2/7] Logging in to Amazon ECR ($EcrRegistry)..." -ForegroundColor Yellow
 aws ecr get-login-password --region $AwsRegion | docker login --username AWS --password-stdin $EcrRegistry
 
 # 3. Create ECR Repositories if not exist
-Write-Host "`n[3/6] Ensuring ECR repositories exist..." -ForegroundColor Yellow
+Write-Host "`n[3/7] Ensuring ECR repositories exist..." -ForegroundColor Yellow
 foreach ($repo in @($BackendRepo, $FrontendRepo)) {
     try {
         aws ecr describe-repositories --repository-names $repo --region $AwsRegion | Out-Null
@@ -46,7 +47,7 @@ foreach ($repo in @($BackendRepo, $FrontendRepo)) {
 }
 
 # 4. Build and Push Backend Image (Google ADK Agent Engine)
-Write-Host "`n[4/6] Building & Pushing Backend Container..." -ForegroundColor Yellow
+Write-Host "`n[4/7] Building & Pushing Backend Container..." -ForegroundColor Yellow
 $BackendImageTag = "$EcrRegistry/${BackendRepo}:latest"
 docker build -t $BackendRepo -f co2ops_agent/Dockerfile co2ops_agent/
 docker tag ${BackendRepo}:latest $BackendImageTag
@@ -54,15 +55,15 @@ docker push $BackendImageTag
 Write-Host "Backend image pushed successfully: $BackendImageTag" -ForegroundColor Green
 
 # 5. Build and Push Frontend Image (Streamlit Workspace)
-Write-Host "`n[5/6] Building & Pushing Frontend Container..." -ForegroundColor Yellow
+Write-Host "`n[5/7] Building & Pushing Frontend Container..." -ForegroundColor Yellow
 $FrontendImageTag = "$EcrRegistry/${FrontendRepo}:latest"
 docker build -t $FrontendRepo -f Frontend/Dockerfile Frontend/
 docker tag ${FrontendRepo}:latest $FrontendImageTag
 docker push $FrontendImageTag
 Write-Host "Frontend image pushed successfully: $FrontendImageTag" -ForegroundColor Green
 
-# 6. S3 Buckets & Deployment Instructions
-Write-Host "`n[6/6] Finalizing AWS Deployment Config..." -ForegroundColor Yellow
+# 6. S3 Buckets & Deployment Config
+Write-Host "`n[6/7] Finalizing S3 Storage Buckets..." -ForegroundColor Yellow
 $BucketName = "co2ops-sustainability-$AccountId"
 try {
     if ($AwsRegion -eq "us-east-1") {
@@ -75,6 +76,17 @@ try {
     Write-Host "Bucket notice: $_" -ForegroundColor DarkGray
 }
 
+# 7. (Optional) Deploy Amazon SageMaker AI Serverless Endpoint
+if ($DeploySageMaker) {
+    Write-Host "`n[7/7] Deploying Amazon SageMaker AI Serverless Endpoint..." -ForegroundColor Yellow
+    $env:SAGEMAKER_REGION = $AwsRegion
+    $env:SAGEMAKER_ENDPOINT_NAME = "co2ops-load-forecaster"
+    $env:AWS_METRICS_BUCKET = $BucketName
+    & python (Join-Path $PSScriptRoot "co2ops_agent\sagemaker_model\deploy_endpoint.py")
+} else {
+    Write-Host "`n[7/7] SageMaker deployment skipped. (Pass -DeploySageMaker to deploy serverless ML endpoint)" -ForegroundColor DarkGray
+}
+
 Write-Host "`n=================================================================" -ForegroundColor Cyan
 Write-Host " SUCCESS: Containers Built & Pushed to AWS ECR!" -ForegroundColor Green
 Write-Host "=================================================================" -ForegroundColor Cyan
@@ -83,9 +95,14 @@ Write-Host "  1. Open AWS Console -> App Runner -> Create Service" -ForegroundCo
 Write-Host "  2. Service 1 (Backend):" -ForegroundColor White
 Write-Host "     - Image: $BackendImageTag" -ForegroundColor DarkCyan
 Write-Host "     - Port: 8080" -ForegroundColor DarkCyan
-Write-Host "     - Env: GEMINI_API_KEY=<your_key>, AWS_DEFAULT_REGION=$AwsRegion" -ForegroundColor DarkCyan
+Write-Host "     - Environment Variables:" -ForegroundColor DarkCyan
+Write-Host "         GEMINI_API_KEY=<your_gemini_key>" -ForegroundColor White
+Write-Host "         AWS_DEFAULT_REGION=$AwsRegion" -ForegroundColor White
+Write-Host "         SAGEMAKER_ENDPOINT_NAME=co2ops-load-forecaster  (optional)" -ForegroundColor White
+Write-Host "         SAGEMAKER_REGION=$AwsRegion                     (optional)" -ForegroundColor White
 Write-Host "  3. Service 2 (Frontend):" -ForegroundColor White
 Write-Host "     - Image: $FrontendImageTag" -ForegroundColor DarkCyan
 Write-Host "     - Port: 8501" -ForegroundColor DarkCyan
-Write-Host "     - Env: CO2OPS_API_URL=<backend_app_runner_url>" -ForegroundColor DarkCyan
+Write-Host "     - Environment Variables:" -ForegroundColor DarkCyan
+Write-Host "         CO2OPS_API_URL=<backend_app_runner_url>" -ForegroundColor White
 Write-Host "=================================================================`n" -ForegroundColor Cyan
