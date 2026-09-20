@@ -13,7 +13,10 @@ services:
       - AWS_METRICS_BUCKET=co2ops-metrics-storage
       - AWS_REPORTS_BUCKET=co2ops-reports-storage
       - CLIMATIQ_API_KEY=${CLIMATIQ_API_KEY:-}
-      - BEDROCK_MODEL_ID=${BEDROCK_MODEL_ID:-us.anthropic.claude-3-5-sonnet-20241022-v2:0}
+      - GEMINI_API_KEY=${GEMINI_API_KEY:-}
+      - GEMINI_MODEL=${GEMINI_MODEL:-gemini-2.5-flash}
+      - SAGEMAKER_ENDPOINT_NAME=${SAGEMAKER_ENDPOINT_NAME:-}
+      - SAGEMAKER_REGION=${SAGEMAKER_REGION:-us-east-1}
       - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID:-}
       - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY:-}
     restart: unless-stopped
@@ -24,7 +27,9 @@ services:
       dockerfile: Dockerfile
     container_name: co2ops-aws-frontend
     ports:
-      - "8501:80"
+      - "8501:8501"
+    environment:
+      - CO2OPS_API_URL=http://backend:8080
     depends_on:
       - backend
     restart: unless-stopped
