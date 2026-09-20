@@ -17,6 +17,20 @@ Write-Host " CO2Ops - AWS Cloud Production Deployment" -ForegroundColor Cyan
 Write-Host " Targets: Amazon ECR, AWS App Runner / ECS, Amazon S3, SageMaker" -ForegroundColor Cyan
 Write-Host "=================================================================" -ForegroundColor Cyan
 
+# Auto-detect AWS CLI if not in current session PATH
+if (-not (Get-Command aws -ErrorAction SilentlyContinue)) {
+    $AwsLocations = @(
+        "$env:LOCALAPPDATA\Programs\Amazon\AWSCLIV2",
+        "C:\Program Files\Amazon\AWSCLIV2"
+    )
+    foreach ($loc in $AwsLocations) {
+        if (Test-Path "$loc\aws.exe") {
+            $env:Path = "$loc;$env:Path"
+            break
+        }
+    }
+}
+
 # 1. Check AWS CLI Authentication
 Write-Host "`n[1/7] Verifying AWS CLI authentication..." -ForegroundColor Yellow
 try {
