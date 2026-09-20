@@ -448,34 +448,54 @@ def change_machine_type(
         return ro_result
 
     # 1. SAFETY GATE ENFORCEMENT:
-    # If state is provided, execution is strictly blocked unless state.safety_eval is 'ALLOW'.
-    # Claude/LLM cannot bypass this check.
-    if state is not None:
-        safety = getattr(state, "safety_eval", {}) or {}
-        decision = safety.get("decision")
-        is_safe = safety.get("is_safe", False)
+    # Execution requires a verified ALLOW decision in state.safety_eval.
+    # If state is None, there is no verified safety evaluation — block immediately.
+    # Claude/LLM cannot bypass this check by omitting state.
+    if state is None:
+        no_state_result = {
+            "status": "blocked",
+            "execution_status": "blocked_no_safety_context",
+            "decision": "BLOCK",
+            "instance_id": instance_id,
+            "original_instance_type": "unknown",
+            "target_instance_type": new_machine_type,
+            "new_machine_type": new_machine_type,
+            "original_state": "unknown",
+            "final_state": "unknown",
+            "architecture_check": {"compatible": False, "reason": "No safety context available."},
+            "reason": "Execution requires a verified safety evaluation in CO2OpsState. No state was provided.",
+            "error": "Safety Gate blocked execution: No CO2OpsState provided — cannot verify safety authorization.",
+            "verification_result": "blocked_no_safety_context",
+            "message": f"Execution BLOCKED for {instance_id}: No CO2OpsState provided. Safety gate cannot be bypassed by omitting state."
+        }
+        logger.warning(f"Safety Gate BLOCKED execution for {instance_id}: No state provided.")
+        return no_state_result
 
-        if decision != "ALLOW" or not is_safe:
-            reason = safety.get("reason") or "Safety evaluation did not approve migration (decision is not ALLOW)."
-            blocked_result = {
-                "status": "blocked",
-                "execution_status": "blocked_by_safety_gate",
-                "decision": "BLOCK",
-                "instance_id": instance_id,
-                "original_instance_type": "unknown",
-                "target_instance_type": new_machine_type,
-                "new_machine_type": new_machine_type,
-                "original_state": "unknown",
-                "final_state": "unknown",
-                "architecture_check": {"compatible": False, "reason": "Not evaluated due to safety gate block."},
-                "reason": reason,
-                "error": f"Safety Gate blocked execution: {reason}",
-                "verification_result": "blocked_by_safety_gate",
-                "message": f"Execution BLOCKED by Safety Gate for {instance_id}: {reason}"
-            }
-            _update_state_execution_fields(state, blocked_result)
-            logger.warning(f"Safety Gate BLOCKED execution for {instance_id}: {reason}")
-            return blocked_result
+    safety = getattr(state, "safety_eval", {}) or {}
+    decision = safety.get("decision")
+    is_safe = safety.get("is_safe", False)
+
+    if decision != "ALLOW" or not is_safe:
+        reason = safety.get("reason") or "Safety evaluation did not approve migration (decision is not ALLOW)."
+        blocked_result = {
+            "status": "blocked",
+            "execution_status": "blocked_by_safety_gate",
+            "decision": "BLOCK",
+            "instance_id": instance_id,
+            "original_instance_type": "unknown",
+            "target_instance_type": new_machine_type,
+            "new_machine_type": new_machine_type,
+            "original_state": "unknown",
+            "final_state": "unknown",
+            "architecture_check": {"compatible": False, "reason": "Not evaluated due to safety gate block."},
+            "reason": reason,
+            "error": f"Safety Gate blocked execution: {reason}",
+            "verification_result": "blocked_by_safety_gate",
+            "message": f"Execution BLOCKED by Safety Gate for {instance_id}: {reason}"
+        }
+        _update_state_execution_fields(state, blocked_result)
+        logger.warning(f"Safety Gate BLOCKED execution for {instance_id}: {reason}")
+        return blocked_result
 
     logger.info(f"Initiating hardened EC2 migration: {instance_id} -> {new_machine_type} in {region}")
 
@@ -681,17 +701,24 @@ def change_machine_type(
 
         # Restore running state if we stopped it, preventing instances left unexpectedly stopped
         current_restored_state = "stopped" if not was_originally_running else "unknown"
+        rollback_error: Optional[str] = None
+        rollback_status = "not_required"
+
         if was_originally_running and stopped_by_executor:
+            rollback_status = "attempted"
             try:
                 logger.warning(f"Attempting to restore running state for {instance_id} after failure...")
                 ec2.start_instances(InstanceIds=[instance_id])
                 waiter_running = ec2.get_waiter("instance_running")
                 waiter_running.wait(InstanceIds=[instance_id], WaiterConfig={"Delay": 5, "MaxAttempts": 40})
                 current_restored_state = "running"
+                rollback_status = "rollback_succeeded"
                 logger.info(f"✅ Successfully restored running state for {instance_id}.")
             except Exception as restart_err:
                 logger.error(f"Failed to restore running state for {instance_id}: {restart_err}")
-                current_restored_state = "stopped"
+                current_restored_state = "stopped_rollback_failed"
+                rollback_error = str(restart_err)
+                rollback_status = "rollback_failed"
 
         fail_result = {
             "status": "failed",
@@ -706,8 +733,14 @@ def change_machine_type(
             "region": region,
             "architecture_check": arch_check,
             "error": str(modify_err),
+            "rollback_status": rollback_status,
+            "rollback_error": rollback_error,
             "verification_result": "modification_failed",
-            "message": f"Failed to modify EC2 instance {instance_id}: {str(modify_err)}"
+            "message": (
+                f"Failed to modify EC2 instance {instance_id}: {str(modify_err)}. "
+                f"Rollback status: {rollback_status}."
+                + (f" Rollback error: {rollback_error}" if rollback_error else "")
+            )
         }
         _update_state_execution_fields(state, fail_result)
         return fail_result
