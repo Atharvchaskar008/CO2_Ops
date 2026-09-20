@@ -208,7 +208,7 @@ document.addEventListener('DOMContentLoaded', () => {
       } catch (err) {
         hideThinking();
         console.error('Fetch error:', err);
-        appendMessage('assistant', `Could not reach CO2Ops FastAPI backend on ${API_BASE_URL}. Ensure the backend is running on port 8080.`);
+        appendMessage('assistant', `Could not reach CO2Ops FastAPI backend on ${API_BASE_URL}. Ensure the backend is running.`);
       } finally {
         chatInput.disabled = false;
         if (sendBtn) sendBtn.disabled = false;
