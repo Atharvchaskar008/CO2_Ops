@@ -13,4 +13,3 @@ presentations/
 !.env.example
 !*.env.example
 .env.local
-DEPLOY_TO_AWS_STEP_BY_STEP.md
