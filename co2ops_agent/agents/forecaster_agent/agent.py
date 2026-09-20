@@ -4,7 +4,7 @@ import hashlib
 import logging
 import os
 import re
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional
 import numpy as np
 import pandas as pd
 from statsmodels.tsa.arima.model import ARIMA
@@ -82,9 +82,58 @@ def generate_baseline_history(instance_id: str, metric: str, length: int = 14) -
     return [round(float(h), 3) for h in history]
 
 
+def invoke_sagemaker_forecast(instance_id: str, metric: str, history: List[float], horizon_days: int = 7) -> Optional[List[float]]:
+    """
+    Invokes an Amazon SageMaker AI real-time or serverless endpoint for predictive time-series inference.
+    Returns the predicted values, or None if the endpoint is unset or invocation fails.
+    """
+    endpoint_name = os.getenv("SAGEMAKER_ENDPOINT_NAME")
+    if not endpoint_name:
+        return None
+
+    try:
+        import boto3
+        import json
+        region = os.getenv("SAGEMAKER_REGION", os.getenv("AWS_DEFAULT_REGION", "us-east-1"))
+        client = boto3.client("sagemaker-runtime", region_name=region)
+        
+        payload = {
+            "instance_id": instance_id,
+            "metric": metric,
+            "history": history,
+            "horizon": horizon_days
+        }
+        
+        response = client.invoke_endpoint(
+            EndpointName=endpoint_name,
+            ContentType="application/json",
+            Body=json.dumps(payload)
+        )
+        
+        body_content = response["Body"].read().decode("utf-8")
+        result = json.loads(body_content)
+        
+        # Support multiple common output formats: {"predictions": [...]}, {"forecast": [...]}, {"values": [...]} or raw list
+        if isinstance(result, dict):
+            predictions = result.get("predictions") or result.get("forecast") or result.get("values") or []
+        elif isinstance(result, list):
+            predictions = result
+        else:
+            predictions = []
+            
+        if predictions:
+            logger.info(f"Successfully received Amazon SageMaker AI forecast from endpoint '{endpoint_name}' for {instance_id}")
+            return [round(max(0.0, float(v)), 3) for v in predictions[:horizon_days]]
+    except Exception as e:
+        logger.warning(f"SageMaker AI endpoint '{endpoint_name}' invocation failed ({e}). Falling back to local ARIMA engine.")
+
+    return None
+
+
 def generate_aws_forecast(instance_id: str, metric: str = "cpu", horizon_days: int = 7) -> Dict[str, Any]:
     """
-    Generates a time-series forecast for an EC2 instance using statsmodels ARIMA.
+    Generates a time-series forecast for an EC2 instance using Amazon SageMaker AI
+    with an automatic statsmodels ARIMA fallback for local execution.
     """
     instance_id = instance_id.strip().strip('"').strip("'")
     metric_name = metric.lower().strip()
@@ -94,15 +143,19 @@ def generate_aws_forecast(instance_id: str, metric: str = "cpu", horizon_days: i
     if len(history) < 5:
         history = generate_baseline_history(instance_id, metric_name, length=14)
 
-    # 2. Fit ARIMA model
-    try:
-        model = ARIMA(history, order=(1, 0, 0)).fit()
-        forecast_values = model.forecast(steps=horizon_days)
-        forecast_values = [round(max(0.0, float(v)), 3) for v in forecast_values]
-    except Exception as e:
-        logger.warning(f"ARIMA fit fallback: {e}")
-        avg = float(np.mean(history))
-        forecast_values = [round(avg + float(np.random.normal(0, 0.5)), 3) for _ in range(horizon_days)]
+    # 2. Predictive Forecasting: Amazon SageMaker AI with local ARIMA fallback
+    forecast_values = invoke_sagemaker_forecast(instance_id, metric_name, history, horizon_days)
+    engine_used = "Amazon SageMaker AI" if forecast_values is not None else "Local ARIMA"
+
+    if forecast_values is None:
+        try:
+            model = ARIMA(history, order=(1, 0, 0)).fit()
+            forecast_values = model.forecast(steps=horizon_days)
+            forecast_values = [round(max(0.0, float(v)), 3) for v in forecast_values]
+        except Exception as e:
+            logger.warning(f"ARIMA fit fallback: {e}")
+            avg = float(np.mean(history))
+            forecast_values = [round(avg + float(np.random.normal(0, 0.5)), 3) for _ in range(horizon_days)]
 
     # 3. Generate date range starting tomorrow
     start_date = datetime.date.today() + datetime.timedelta(days=1)
@@ -122,6 +175,7 @@ def generate_aws_forecast(instance_id: str, metric: str = "cpu", horizon_days: i
         "instance_id": instance_id,
         "metric": metric,
         "horizon_days": horizon_days,
+        "engine": engine_used,
         "row_count": len(rows),
         "rows": [pivot_row],  # Keeps compatibility with agents expecting pivot
         "detailed_rows": rows,
@@ -132,7 +186,7 @@ def generate_aws_forecast(instance_id: str, metric: str = "cpu", horizon_days: i
 
 def execute_forecast_query(query_or_text: str) -> dict:
     """
-    Parses request text or SQL-like syntax and executes the Python ARIMA forecast.
+    Parses request text or SQL-like syntax and executes the forecast.
     Maintains compatibility with Google ADK tool call expectations.
     """
     text = str(query_or_text)
@@ -159,9 +213,10 @@ def execute_forecast_query(query_or_text: str) -> dict:
 forecasting_tool_agent = LlmAgent(
     name="forecasting_tool_agent",
     model=os.getenv("GEMINI_MODEL", "gemini-2.5-flash"),
-    description="Forecasts CPU, memory, or carbon usage for AWS EC2 instances using statistical ARIMA time-series models.",
+    description="Forecasts CPU, memory, or carbon usage for AWS EC2 instances using Amazon SageMaker AI (with local ARIMA fallback).",
     instruction="""
     You are an AWS infrastructure forecasting agent that predicts future CPU utilization, memory utilization, or carbon emissions for AWS EC2 instances over 7 days.
+    You leverage Amazon SageMaker AI predictive endpoints (with local ARIMA fallback) for time-series modeling.
 
     Your responsibilities:
     1. Identify the requested metric: 'cpu', 'memory', or 'carbon'.
@@ -170,6 +225,7 @@ forecasting_tool_agent = LlmAgent(
     4. Format the output cleanly:
        - Instance ID: <instance_id>
        - Metric: <CPU Utilization (%), Memory Utilization (%), or Carbon Emissions (kg)>
+       - Engine: <Amazon SageMaker AI or Local ARIMA>
        - 7-Day Forecast Table: Display columns [Date, Forecast Value]
        - Brief trend observation (e.g. "Consistently below 25%, confirming safe right-sizing window").
 

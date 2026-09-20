@@ -10,38 +10,41 @@ This document outlines the blueprint and step-by-step plan for deploying **CO2Op
                       +-----------------------------+
                       |       User Browser          |
                       +--------------+--------------+
+                                     | HTTPS (Port 443)
+                                     v
+                       +----------------------------+
+                       |       AWS App Runner       |
+                       |    (Live Public HTTPS URL) |
+                       +-------------+--------------+
                                      |
                +---------------------+---------------------+
-               | (HTTPS / CDN)                             | (Direct Console)
+               | Port 8501                                 | Port 8080 (/run)
                v                                           v
       +------------------+                        +------------------+
-      |  Amazon S3 +     |                        | Streamlit /      |
-      |  CloudFront      |                        | Web Workspace    |
-      | (Landing Page)   |                        | (Port 8501)      |
-      +--------+---------+                        +--------+---------+
-               |                                           |
-               +---------------------+---------------------+
-                                     | REST API (/run)
-                                     v
-                 +---------------------------------------+
-                 |       CO2Ops Agent Backend            |
-                 | (AWS ECS Fargate / AWS App Runner)    |
-                 +---+-------------------------------+---+
-                     |                               |
-       +-------------+-------------+                 |
-       |                           |                 v
-       v                           v       +-------------------+
-+--------------+           +---------------+|  AWS Secrets      |
-| AWS EC2 APIs |           | Climatiq AWS  ||  Manager          |
-| (Describe/   |           | Emissions API || (API Credentials) |
-|  Modify)     |           +---------------+-------------------+
-+--------------+                           |
-       |                                   v
-       v                           +-------------------+
-+--------------+                   |  Amazon S3        |
-|  CloudWatch  |                   | (Reports & Slides)|
-|  Telemetry   |                   +-------------------+
-+--------------+
+      | Streamlit App    |----------------------->| Google ADK Agent |
+      | Workspace UI     |                        | Multi-Agent Core |
+      +------------------+                        +---+----------+---+
+                                                      |          |
+         +---------------------+----------------------+          v
+         |                     |                       +-------------------+
+         v                     v                       |  Amazon SageMaker |
+  +--------------+      +---------------+              |  AI Endpoint      |
+  | AWS EC2 APIs |      | Climatiq AWS  |              |  (DeepAR / ARIMA) |
+  | (Describe/   |      | Emissions API |              +-------------------+
+  |  Modify)     |      +---------------+                        |
+  +-------+------+                                               v
+          |                                            +-------------------+
+          v                                            |  AWS Secrets      |
+  +--------------+                                     |  Manager / SSM    |
+  |  CloudWatch  |                                     +-------------------+
+  |  Telemetry   |                                               |
+  +-------+------+                                               v
+          |                                            +-------------------+
+          v                                            |  Amazon S3        |
+  +--------------+                                     | (Reports & Slides)|
+  | AWS Lambda + |                                     +-------------------+
+  | EventBridge  |
+  +--------------+
 ```
 
 ---
@@ -117,6 +120,14 @@ Create an IAM Role `CO2OpsExecutionRole` for the backend service with the follow
         "secretsmanager:GetSecretValue"
       ],
       "Resource": "arn:aws:secretsmanager:*:*:secret:CLIMATIQ_API_KEY*"
+    },
+    {
+      "Sid": "SageMakerInvokeAccess",
+      "Effect": "Allow",
+      "Action": [
+        "sagemaker:InvokeEndpoint"
+      ],
+      "Resource": "arn:aws:sagemaker:*:*:endpoint/co2ops-*"
     }
   ]
 }
@@ -209,9 +220,23 @@ docker push <AWS_ACCOUNT_ID>.dkr.ecr.us-east-1.amazonaws.com/co2ops-backend:late
 
 ---
 
-## 8. Step 7: Scheduled Daily Snapshot on AWS Lambda + EventBridge
+## 8. Step 7: Amazon SageMaker AI Serverless Endpoint (Predictive Forecaster)
 
-To replicate continuous telemetry collection and ARIMA training:
+Deploy the serverless time-series forecasting endpoint:
+```bash
+python co2ops_agent/sagemaker_model/deploy_endpoint.py
+```
+This deploys `co2ops-load-forecaster` as an AWS SageMaker Serverless Endpoint. Add the endpoint name to your environment:
+```bash
+export SAGEMAKER_ENDPOINT_NAME=co2ops-load-forecaster
+export SAGEMAKER_REGION=us-east-1
+```
+
+---
+
+## 9. Step 8: Scheduled Daily Snapshot on AWS Lambda + EventBridge
+
+To replicate continuous telemetry collection:
 1. Deploy `aws_lambda/daily_data_snapshot.py` as an AWS Lambda function.
 2. Create an **Amazon EventBridge Rule** with a daily cron schedule:
    ```text
@@ -221,11 +246,31 @@ To replicate continuous telemetry collection and ARIMA training:
 
 ---
 
-## 9. Verification & Cutover Checklist
+## 10. Automated One-Command Deployment
 
-- [ ] Verify backend health: `GET https://<app-runner-url>/docs`
+We provide automated deployment scripts that build and push both containers to Amazon ECR and configure S3:
+
+- **Windows (PowerShell)**:
+  ```powershell
+  .\deploy_aws.ps1 -AwsRegion us-east-1
+  ```
+- **Linux / macOS (Bash)**:
+  ```bash
+  chmod +x deploy_aws.sh
+  ./deploy_aws.sh us-east-1
+  ```
+
+---
+
+## 11. Verification & Cutover Checklist
+
+- [ ] Verify backend health: `GET https://<app-runner-url>/`
+- [ ] Verify Streamlit frontend: open `https://<frontend-app-runner-url>`
 - [ ] Verify session creation: `POST /apps/co2ops_agent/users/test/sessions/test-1`
-- [ ] Send test prompt via `/run`: *"Audit EC2 instances in us-east-1"*
+- [ ] Send test prompt: *"Audit EC2 instances in us-east-1"*
+- [ ] Confirm `@forecasting_tool_agent` queries SageMaker (or local fallback)
 - [ ] Confirm `@optimization_advisor` returns recommendations
+- [ ] Test safe execution workflow with test EC2 instance
+- [ ] Confirm executive summary uploaded to S3 bucket `co2ops-sustainability-reports`
 - [ ] Test safe execution workflow with test EC2 instance
 - [ ] Confirm executive summary uploaded to S3 bucket `co2ops-sustainability-reports`
