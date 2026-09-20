@@ -31,6 +31,20 @@ if (-not (Get-Command aws -ErrorAction SilentlyContinue)) {
     }
 }
 
+# Auto-detect Docker CLI if not in current session PATH
+if (-not (Get-Command docker -ErrorAction SilentlyContinue)) {
+    $DockerLocations = @(
+        "$env:LOCALAPPDATA\Programs\DockerDesktop\resources\bin",
+        "C:\Program Files\Docker\Docker\resources\bin"
+    )
+    foreach ($loc in $DockerLocations) {
+        if (Test-Path "$loc\docker.exe") {
+            $env:Path = "$loc;$env:Path"
+            break
+        }
+    }
+}
+
 # 1. Check AWS CLI Authentication
 Write-Host "`n[1/7] Verifying AWS CLI authentication..." -ForegroundColor Yellow
 $CallerIdentity = $null
@@ -54,7 +68,14 @@ Write-Host "Authenticated as Account: $AccountId ($($CallerIdentity.Arn))" -Fore
 
 # Verify Docker is running
 if (-not (Get-Command docker -ErrorAction SilentlyContinue)) {
-    Write-Host "`nError: 'docker' command not found. Please ensure Docker Desktop is installed and running." -ForegroundColor Red
+    Write-Host "`nError: 'docker' command not found. Please ensure Docker Desktop is installed." -ForegroundColor Red
+    exit 1
+}
+
+Write-Host "Verifying Docker engine..." -ForegroundColor DarkGray
+& docker info >$null 2>&1
+if ($LASTEXITCODE -ne 0) {
+    Write-Host "`nError: Docker engine is not running. Please open Docker Desktop and wait until the engine starts." -ForegroundColor Red
     exit 1
 }
 
@@ -112,7 +133,12 @@ if ($DeploySageMaker) {
     $env:SAGEMAKER_REGION = $AwsRegion
     $env:SAGEMAKER_ENDPOINT_NAME = "co2ops-load-forecaster"
     $env:AWS_METRICS_BUCKET = $BucketName
-    & python (Join-Path $PSScriptRoot "co2ops_agent\sagemaker_model\deploy_endpoint.py")
+    $PythonExe = if (Test-Path (Join-Path $PSScriptRoot ".venv\Scripts\python.exe")) {
+        Join-Path $PSScriptRoot ".venv\Scripts\python.exe"
+    } else {
+        "python"
+    }
+    & $PythonExe (Join-Path $PSScriptRoot "co2ops_agent\sagemaker_model\deploy_endpoint.py")
 } else {
     Write-Host "`n[7/7] SageMaker deployment skipped. (Pass -DeploySageMaker to deploy serverless ML endpoint)" -ForegroundColor DarkGray
 }
