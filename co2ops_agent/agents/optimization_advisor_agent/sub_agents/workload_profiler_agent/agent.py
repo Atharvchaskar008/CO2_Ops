@@ -1,11 +1,11 @@
-from google.adk.agents import LlmAgent
+from co2ops_agent.bedrock.agent import BedrockAgent
+from co2ops_agent.bedrock.state import CO2OpsState
 from co2ops_agent.agents.impact_calculator_agent.agent import get_on_demand_price, get_carbon_emissions_per_hour
 
-workload_profiler_agent = LlmAgent(
+workload_profiler_agent = BedrockAgent(
     name="workload_profiler",
-    model="gemini-2.0-flash",
     description="Analyzes AWS EC2 infrastructure data to detect optimization opportunities, underutilized resources, and carbon/cost inefficiencies.",
-    instruction="""
+    system_instruction="""
     You are a smart AWS workload profiling agent that analyzes AWS EC2 infrastructure metrics to detect optimization opportunities.
 
     Your goals:
@@ -53,7 +53,8 @@ workload_profiler_agent = LlmAgent(
     ASSIGN the final analysis result to analysis_results.
     You are an expert AWS FinOps & GreenOps engineer—be specific, accurate, and professional.
     """,
-    output_key="analysis_results",
-    tools=[get_on_demand_price, get_carbon_emissions_per_hour]
+    tools=[get_on_demand_price, get_carbon_emissions_per_hour],
+    input_state_key="infra_data",
+    output_state_key="analysis_results"
 )
 

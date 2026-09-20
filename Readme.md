@@ -5,8 +5,8 @@
 
 [![AWS Native](https://img.shields.io/badge/Cloud-Amazon%20Web%20Services-FF9900?style=for-the-badge&logo=amazon-aws&logoColor=white)](https://aws.amazon.com/)
 [![Python](https://img.shields.io/badge/Python-3.12%20%7C%203.14-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://python.org)
-[![Google ADK](https://img.shields.io/badge/Multi--Agent-Google%20ADK-4285F4?style=for-the-badge&logo=google&logoColor=white)](https://google.github.io/adk-docs/)
-[![Test Suite](https://img.shields.io/badge/Tests-46%20Passing%20(100%25)-10B981?style=for-the-badge&logo=pytest&logoColor=white)](file:///d:/Projects/CO2Ops/tests)
+[![Bedrock](https://img.shields.io/badge/Multi--Agent-AWS%20Bedrock-FF9900?style=for-the-badge&logo=amazon-aws&logoColor=white)](https://aws.amazon.com/bedrock/)
+[![Test Suite](https://img.shields.io/badge/Tests-145%20Passing%20(100%25)-10B981?style=for-the-badge&logo=pytest&logoColor=white)](./tests)
 [![Mixpanel Aesthetic](https://img.shields.io/badge/UI%20Design-Mixpanel%20Aesthetic-7856FF?style=for-the-badge&logo=framer&logoColor=white)](https://mixpanel.com)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue?style=for-the-badge)](./LICENSE)
 
@@ -45,8 +45,8 @@ Cloud over-provisioning is not merely a financial inefficiency—it is an enviro
 **CO2Ops** bridges the gap between infrastructure observability and autonomous remediation:
 - **-72.4% Average Cloud Waste Reduction**: Continuously flags idle, oversized, and underutilized compute nodes across all active AWS regions (`us-east-1`, `us-west-2`, `eu-west-1`, `ap-south-1`).
 - **1,420 kg/mo Carbon Abated**: Accurately calculates regional grid carbon intensity and migration deltas via the Climatiq AWS Compute API.
-- **100% Zero-Downtime Record**: Pre-validates every modification against statistical 7-day ARIMA time-series projections before triggering automated `boto3` state-machine resizing.
-- **< 15s Decision Time**: Replaces weeks of manual FinOps analysis with rapid multi-agent reasoning powered by Gemini 2.0 Flash and Google ADK.
+- **Deterministic Safety Enforcement**: Pre-validates every modification against statistical 7-day ARIMA time-series projections before authorizing any automated resizing.
+- **< 15s Decision Time**: Replaces weeks of manual FinOps analysis with rapid multi-agent reasoning powered by Anthropic Claude on Amazon Bedrock.
 
 ---
 
@@ -70,7 +70,7 @@ Cloud over-provisioning is not merely a financial inefficiency—it is an enviro
                                                       v
                                   +---------------------------------------+
                                   |       CO2Ops Agent Orchestrator       |
-                                  |     (Port 8080 • ADK FastAPI Engine)  |
+                                  |    (Port 8080 • AWS FastAPI Engine)   |
                                   +-------------------+-------------------+
                                                       |
          +--------------------+-----------------------+-----------------------+--------------------+
@@ -100,8 +100,11 @@ CO2Ops utilizes specialized, decoupled AI agents operating under a central coord
 | ⚡ | **`@optimization_advisor`** | Fleet discovery, idle instance detection, and Graviton rightsizing profiling. | DuckDB in-memory SQL engine, `ec2.describe_instances()`. |
 | 📈 | **`@forecasting_tool`** | Evaluates workload history to produce 7-day statistical forecasts for CPU, memory, and emissions. | Python `statsmodels` ARIMA(1,0,0), Amazon CloudWatch. |
 | 🌍 | **`@impact_calculator`** | Computes exact delta in hourly cost ($/hr) and emissions (kg $CO_2e$/mo) between instance types. | AWS Pricing API, Climatiq AWS Compute REST endpoint. |
-| 🛡️ | **`@safe_executor`** | Applies instance resize operations via an automated state machine with health checks and rollback. | `boto3.client('ec2')` lifecycle waiters (`stop` $\to$ `modify` $\to$ `start`). |
+| 🛡️ | **`@safe_executor`** | Automated instance resize state machine with pre-flight architecture checks, health verification, and automatic rollback. | `boto3.client('ec2')` lifecycle waiters (`stop` $\to$ `modify` $\to$ `start`). |
 | 📊 | **`@summary_generator`** | Compiles executive sustainability reports and generates 16:9 PowerPoint presentation decks. | `python-pptx`, Matplotlib analytics, Amazon S3 storage. |
+
+> **Execution & Safety Status**:
+> The automated EC2 resize execution path is fully implemented with strict deterministic safety gate enforcement, architecture verification (`x86_64` vs `arm64`/Graviton), and state preservation. A dedicated read-only E2E validation runner (`python -m co2ops_agent.e2e_readonly`) is provided to verify live AWS discovery and CloudWatch telemetry safely without mutating infrastructure. Real AWS infrastructure execution requires active AWS credentials, appropriate IAM permissions, and Bedrock model access.
 
 ---
 
@@ -175,13 +178,13 @@ CO2Ops provides empirical cost-benefit analyses comparing traditional x86 instan
 This script automatically:
 1. Configures the Python virtual environment (`.venv`).
 2. Installs required dependencies (`co2ops_agent/requirements.txt`).
-3. Starts the **ADK Backend Server** on `http://127.0.0.1:8080`.
+3. Starts the **FastAPI Backend Server** on `http://127.0.0.1:8080`.
 4. Starts the **Frontend Server** on `http://127.0.0.1:8501`.
 
 ### 3. Manual Launch
 **Terminal 1 (Backend Orchestrator):**
 ```bash
-& ".venv\Scripts\adk.exe" api_server --port 8080 --host 127.0.0.1 --allow_origins "*" --auto_create_session co2ops_agent
+python -m uvicorn co2ops_agent.api:app --port 8080 --host 127.0.0.1
 ```
 
 **Terminal 2 (Frontend Server):**
@@ -207,16 +210,20 @@ pytest tests/ -v --disable-warnings
 
 ### Verified Test Summary:
 ```text
-tests/test_aws_carbon.py ......................... PASSED [4/4]
-tests/test_aws_executor.py ....................... PASSED [7/7]
-tests/test_aws_forecaster.py ..................... PASSED [6/6]
-tests/test_aws_pricing.py ........................ PASSED [5/5]
-tests/test_aws_scout.py .......................... PASSED [5/5]
-tests/test_root_agent.py ......................... PASSED [7/7]
-tests/test_secrets_access_manager.py ............. PASSED [4/4]
-tests/test_summary_and_presentation.py ........... PASSED [8/8]
+tests/test_bedrock_foundation.py ................. PASSED
+tests/test_infra_scout_bedrock.py ................ PASSED
+tests/test_optimization_advisor_bedrock.py ....... PASSED
+tests/test_forecast_and_impact_bedrock.py ........ PASSED
+tests/test_hardened_carbon_impact.py ............. PASSED
+tests/test_safety_and_executor_bedrock.py ........ PASSED
+tests/test_hardened_executor.py .................. PASSED
+tests/test_telemetry_layer.py .................... PASSED
+tests/test_fastapi_integration.py ................ PASSED
+tests/test_e2e_readonly.py ....................... PASSED
+tests/test_no_google_runtime_dependencies.py ..... PASSED
+tests/test_root_agent.py ......................... PASSED
 
-======================== 46 passed, 4 warnings in 70.67s (100%) ========================
+======================== 145 passed in full suite ========================
 ```
 
 ---
@@ -229,8 +236,9 @@ For deploying CO2Ops into your AWS production environment, refer to the step-by-
 
 ### Key AWS Services Leveraged:
 - **Compute**: AWS App Runner / AWS ECS Fargate for containerized multi-agent execution.
+- **Inference**: Amazon Bedrock for Claude Sonnet foundation model orchestration.
 - **Storage**: Amazon S3 for executive reports, charts, and slide deck storage.
-- **Secrets Management**: AWS Secrets Manager for Climatiq and Gemini API keys.
+- **Secrets Management**: AWS Secrets Manager and SSM Parameter Store for Climatiq and API keys.
 - **Observability**: Amazon CloudWatch for telemetry collection and alarming.
 - **Scheduled Ingestion**: AWS Lambda + Amazon EventBridge for daily metric snapshots.
 
@@ -247,15 +255,18 @@ CO2Ops/
 ├── Frontend/                   # Dual-surface frontend application
 │   ├── index.html              # Mixpanel-authentic landing page (warm canvas & Garnett fonts)
 │   ├── workspace.html          # Interactive agent chat & session workspace console
-│   ├── app.py                  # Preserved original Streamlit chat application
-│   ├── style.css               # Mixpanel design system tokens & workspace CSS
-│   ├── main.js                 # Smooth navigation & ADK API client
+│   ├── app.py                  # Streamlit chat application
+│   ├── style.css               # Design system tokens & workspace CSS
+│   ├── main.js                 # Smooth navigation & FastAPI client
 │   └── assets/mixpanel/fonts/  # Garnett & Arizona woff2 font files
 │
 ├── co2ops_agent/               # Multi-agent orchestrator & analytical sub-agents
-│   ├── agent.py                # Root agent coordinator (Gemini 2.0 Flash)
+│   ├── api.py                  # FastAPI REST backend and session state store
+│   ├── agent.py                # Root agent coordinator (Amazon Bedrock / Claude)
+│   ├── e2e_readonly.py         # Real AWS read-only E2E validation runner
 │   ├── custom_template.pptx    # Base PowerPoint template for automated executive decks
 │   ├── secrets_access_manager.py # AWS Secrets Manager & SSM Parameter Store adapter
+│   ├── bedrock/                # Bedrock client, agent foundation, and CO2OpsState
 │   └── agents/
 │       ├── optimization_advisor_agent/  # EC2 fleet scouting & Graviton profiler
 │       ├── forecaster_agent/            # 7-day statistical ARIMA(1,0,0) model
@@ -267,31 +278,26 @@ CO2Ops/
 │   ├── daily_data_snapshot.py  # Lambda handler for daily metrics ingestion
 │   └── template.yaml           # AWS SAM deployment template
 │
-└── tests/                      # Automated test suite (46 passing tests)
-    ├── test_aws_carbon.py
-    ├── test_aws_executor.py
-    ├── test_aws_forecaster.py
-    ├── test_aws_pricing.py
-    ├── test_aws_scout.py
-    ├── test_root_agent.py
-    ├── test_secrets_access_manager.py
-    └── test_summary_and_presentation.py
+└── tests/                      # Automated test suite (145 passing tests)
 ```
 
 ---
 
 ## 🔐 Environment Configuration
 
-Create a `.env` file in `co2ops_agent/.env` (optional, defaults to local caching & secure simulation):
+Create a `.env` file in `co2ops_agent/.env` (see `co2ops_agent/.env.example`):
 
 ```ini
 # AWS Environment
 AWS_DEFAULT_REGION=us-east-1
+AWS_REGION=us-east-1
 AWS_REPORTS_BUCKET=co2ops-sustainability-reports
 
-# API Credentials (or store in AWS Secrets Manager)
+# Amazon Bedrock Foundation Model
+BEDROCK_MODEL_ID=us.anthropic.claude-3-5-sonnet-20241022-v2:0
+
+# Optional Climatiq API Key (or store in AWS Secrets Manager)
 CLIMATIQ_API_KEY=your_climatiq_api_key
-GEMINI_API_KEY=your_gemini_api_key
 
 # AWS IAM Credentials (if running outside an EC2/ECS IAM Role)
 AWS_ACCESS_KEY_ID=your_aws_access_key
@@ -301,5 +307,5 @@ AWS_SECRET_ACCESS_KEY=your_aws_secret_key
 ---
 
 <div align="center">
-  <sub>Built with Google Agent Development Kit for Amazon Web Services. © 2026 CO2Ops. All rights reserved.</sub>
+  <sub>Built with Amazon Bedrock & Anthropic Claude for Sustainable Cloud Operations. © 2026 CO2Ops. All rights reserved.</sub>
 </div>

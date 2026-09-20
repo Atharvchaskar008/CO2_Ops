@@ -1,16 +1,25 @@
-from pptx import Presentation
-from pptx.util import Pt
-from pptx.dml.color import RGBColor
+try:
+    from pptx import Presentation
+    from pptx.util import Pt
+    from pptx.dml.color import RGBColor
+except ImportError:
+    Presentation = None
+    Pt = None
+    RGBColor = None
+
+try:
+    from lxml import etree
+except ImportError:
+    etree = None
+
 from io import BytesIO
 import requests
-from lxml import etree
-from google.adk.tools import ToolContext
-from googleapiclient.discovery import build
-from googleapiclient.http import MediaFileUpload
-from google.oauth2 import service_account
+import logging
 import json
 import os
 from co2ops_agent.secrets_access_manager import access_secret
+
+logger = logging.getLogger(__name__)
 
 def get_shape_by_name(slide, target_name):
     for shape in slide.shapes:
@@ -48,15 +57,30 @@ def set_text_with_optional_style(shape, text, font_size=None, font_color=None, b
         if bold is not None:
             font.bold = bold
 
-def create_presentation(content: dict, tool_context: ToolContext):
+def create_presentation(content: dict, tool_context=None, state=None):
     """
-    Input: Dict containting the data for slides
+    Input: Dict containing the data for slides
     """
-    CHART_IMAGE_MAP = tool_context.state["chart_links"]
-    content["forecast_overview"]["chart_image_uri"] = CHART_IMAGE_MAP["[[chart_carbon_timeseries]]"]
-    content["regional_utilization"]["chart_image_uri"] = CHART_IMAGE_MAP["[[chart_underutilization]]"]
-    content["top_recommendations"]["chart_image_uri"] = CHART_IMAGE_MAP["[[chart_region_utilization]]"]
-    content["instance_behavior_insights"]["chart_image_uri"] = CHART_IMAGE_MAP["[[chart_cpu_vs_carbon]]"]
+    chart_image_map = {}
+    if state is not None:
+        if hasattr(state, "custom_metadata") and "chart_links" in state.custom_metadata:
+            chart_image_map = state.custom_metadata["chart_links"]
+        elif hasattr(state, "get") and state.get("chart_links"):
+            chart_image_map = state.get("chart_links")
+        elif isinstance(state, dict) and "chart_links" in state:
+            chart_image_map = state["chart_links"]
+    elif tool_context is not None and hasattr(tool_context, "state") and isinstance(tool_context.state, dict) and "chart_links" in tool_context.state:
+        chart_image_map = tool_context.state["chart_links"]
+
+    if chart_image_map:
+        if "forecast_overview" in content and "[[chart_carbon_timeseries]]" in chart_image_map:
+            content["forecast_overview"]["chart_image_uri"] = chart_image_map["[[chart_carbon_timeseries]]"]
+        if "regional_utilization" in content and "[[chart_underutilization]]" in chart_image_map:
+            content["regional_utilization"]["chart_image_uri"] = chart_image_map["[[chart_underutilization]]"]
+        if "top_recommendations" in content and "[[chart_region_utilization]]" in chart_image_map:
+            content["top_recommendations"]["chart_image_uri"] = chart_image_map["[[chart_region_utilization]]"]
+        if "instance_behavior_insights" in content and "[[chart_cpu_vs_carbon]]" in chart_image_map:
+            content["instance_behavior_insights"]["chart_image_uri"] = chart_image_map["[[chart_cpu_vs_carbon]]"]
 
     # Load base presentation template
     template_candidates = [

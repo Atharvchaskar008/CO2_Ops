@@ -1,10 +1,11 @@
-# Dockerfile for CO2Ops AWS Sustainability ADK Backend
+# Dockerfile for CO2Ops AWS Sustainability Backend
 FROM python:3.12-slim
 
 ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1 \
     PORT=8080 \
-    AWS_DEFAULT_REGION=us-east-1
+    AWS_DEFAULT_REGION=us-east-1 \
+    PYTHONPATH=/app
 
 WORKDIR /app
 
@@ -17,8 +18,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy backend application source
-COPY . /app
+# Copy backend application source into co2ops_agent package namespace
+COPY . /app/co2ops_agent
 
 EXPOSE 8080
 
@@ -26,5 +27,5 @@ EXPOSE 8080
 HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
   CMD curl -f http://localhost:8080/ || exit 1
 
-# Start ADK API server for AWS-optimized CO2Ops Agent
-CMD ["adk", "api_server", "--host", "0.0.0.0", "--port", "8080", "--allow_origins", "*", "--auto_create_session", "/app"]
+# Start AWS-native FastAPI server for CO2Ops Agent
+CMD ["uvicorn", "co2ops_agent.api:app", "--host", "0.0.0.0", "--port", "8080"]
