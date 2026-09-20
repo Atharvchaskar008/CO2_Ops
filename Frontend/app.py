@@ -219,14 +219,14 @@ def send_message(message):
         parts = item.get("content", {}).get("parts", [])
         for part in parts:
             if not part.get("functionResponse") and part.get("text"):
-                assistant_message = part.get("text")
+                assistant_message += part.get("text")
 
     return assistant_message
 
 
 # UI Components
 st.title("🌱 CO2Ops Agent Chat")
-st.caption("Sustainable Cloud Operations powered by Amazon Bedrock")
+st.caption("Sustainable Cloud Operations powered by Google ADK")
 
 # Sidebar for session management
 with st.sidebar:
@@ -243,7 +243,7 @@ with st.sidebar:
             create_session()
     
     st.divider()
-    st.caption("Powered by Amazon Bedrock & Claude Sonnet")
+    st.caption("Powered by Google Agent Development Kit")
     st.caption("Reduce cloud costs and carbon emissions through AI-driven optimization")
 
 # Display chat messages
@@ -293,11 +293,11 @@ if "pending_message" in st.session_state and not st.session_state.get("thinking"
     st.rerun()
 
 
-# Add footer
+# Add Google-style footer
 st.markdown(
     """
     <div style="text-align: center; padding: 16px; color: #5f6368; font-size: 0.8rem;position: fixed;bottom: 0;">
-        AWS Sustainability & FinOps | Amazon Bedrock | CO2Ops v2.0
+        Google Cloud Sustainability | Agent Development Kit | CO2Ops v1.0
     </div>
     """,
     unsafe_allow_html=True
