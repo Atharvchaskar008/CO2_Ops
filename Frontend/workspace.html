@@ -3,225 +3,495 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>CO2Ops — Agent Workspace</title>
+  <title>CO2Ops — Autonomous FinOps & Sustainability Console</title>
+  
+  <!-- Modern Typography: Plus Jakarta Sans for UI, JetBrains Mono for Code/Telemetry -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  
   <link rel="stylesheet" href="./style.css" />
 </head>
-<body class="workspace-body">
-  <!-- SVG Symbols Definition for CO2Ops -->
+<body class="workspace-body dark-theme">
+
+  <!-- SVG Symbols Library for Enterprise Cloud Architecture -->
   <svg style="display: none;" xmlns="http://www.w3.org/2000/svg">
-    <!-- Brand Logo: Eco Cloud with Leaf -->
-    <symbol id="icon-co2ops-brand" viewBox="0 0 32 32">
-      <path d="M22 10a7 7 0 0 0-13.4-2.3A7.5 7.5 0 0 0 3 15a7.5 7.5 0 0 0 7.5 7.5H23a6 6 0 0 0 0-12h-1z" fill="none" stroke="#7856ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-      <path d="M14 22c0-5 3.5-9 8-9 0 5-3.5 9-8 9z" fill="#10b981" opacity="0.9"/>
-      <path d="M14 22l6-6" stroke="#07080b" stroke-width="1.5" stroke-linecap="round"/>
+    <!-- Brand Logo: Eco Cloud with Carbon Leaf -->
+    <symbol id="icon-brand" viewBox="0 0 32 32">
+      <path d="M22 10a7 7 0 0 0-13.4-2.3A7.5 7.5 0 0 0 3 15a7.5 7.5 0 0 0 7.5 7.5H23a6 6 0 0 0 0-12h-1z" fill="none" stroke="#8B5CF6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M14 22c0-5 3.5-9 8-9 0 5-3.5 9-8 9z" fill="#10B981" opacity="0.95"/>
+      <path d="M14 22l6-6" stroke="#0F172A" stroke-width="1.75" stroke-linecap="round"/>
     </symbol>
 
     <!-- AWS EC2 Node -->
-    <symbol id="icon-ec2-node" viewBox="0 0 24 24">
-      <rect x="3" y="4" width="18" height="6" rx="2" fill="none" stroke="#38bdf8" stroke-width="1.75"/>
-      <rect x="3" y="14" width="18" height="6" rx="2" fill="none" stroke="#38bdf8" stroke-width="1.75"/>
-      <circle cx="6.5" cy="7" r="1" fill="#10b981"/>
-      <circle cx="9.5" cy="7" r="1" fill="#38bdf8"/>
-      <circle cx="6.5" cy="17" r="1" fill="#10b981"/>
-      <circle cx="9.5" cy="17" r="1" fill="#38bdf8"/>
-      <path d="M15 7h3M15 17h3" stroke="#64748b" stroke-width="1.5" stroke-linecap="round"/>
+    <symbol id="icon-ec2" viewBox="0 0 24 24">
+      <rect x="3" y="4" width="18" height="6" rx="2" fill="none" stroke="currentColor" stroke-width="1.75"/>
+      <rect x="3" y="14" width="18" height="6" rx="2" fill="none" stroke="currentColor" stroke-width="1.75"/>
+      <circle cx="6.5" cy="7" r="1.25" fill="#10B981"/>
+      <circle cx="10" cy="7" r="1.25" fill="#38BDF8"/>
+      <circle cx="6.5" cy="17" r="1.25" fill="#10B981"/>
+      <circle cx="10" cy="17" r="1.25" fill="#38BDF8"/>
+      <path d="M15 7h3M15 17h3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" opacity="0.6"/>
     </symbol>
 
     <!-- AWS Graviton ARM64 Chip -->
-    <symbol id="icon-graviton-chip" viewBox="0 0 24 24">
-      <rect x="5" y="5" width="14" height="14" rx="2.5" fill="none" stroke="#7856ff" stroke-width="1.75"/>
-      <path d="M9 9h6v6H9z" fill="#7856ff" fill-opacity="0.3" stroke="#7856ff" stroke-width="1.2"/>
-      <path d="M9 2v3M15 2v3M9 19v3M15 19v3M2 9h3M2 15h3M19 9h3M19 15h3" stroke="#94a3b8" stroke-width="1.5" stroke-linecap="round"/>
+    <symbol id="icon-graviton" viewBox="0 0 24 24">
+      <rect x="5" y="5" width="14" height="14" rx="3" fill="none" stroke="currentColor" stroke-width="1.75"/>
+      <rect x="8.5" y="8.5" width="7" height="7" rx="1.5" fill="#8B5CF6" fill-opacity="0.25" stroke="#8B5CF6" stroke-width="1.5"/>
+      <path d="M9 2v3M15 2v3M9 19v3M15 19v3M2 9h3M2 15h3M19 9h3M19 15h3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" opacity="0.7"/>
     </symbol>
 
-    <!-- Carbon CO2 Molecule Cloud -->
-    <symbol id="icon-co2-cloud" viewBox="0 0 24 24">
-      <path d="M6.5 19a4.5 4.5 0 0 1-.5-8.97A7 7 0 0 1 19.5 9a5.5 5.5 0 0 1 1.5 10.79" fill="none" stroke="#10b981" stroke-width="1.75" stroke-linecap="round"/>
-      <path d="M9 14.5a2 2 0 1 0 0 3 2 2 0 0 0 0-3zm6-1.5a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3z" fill="#10b981"/>
+    <!-- Green Leaf Carbon -->
+    <symbol id="icon-carbon" viewBox="0 0 24 24">
+      <path d="M11 20A7 7 0 0 1 4 13c0-7 7-9 16-9 0 9-2 16-9 16Z" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M11 20a15 15 0 0 0 4-10" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/>
     </symbol>
 
     <!-- 7-Day ARIMA Predictive Curve -->
-    <symbol id="icon-arima-chart" viewBox="0 0 24 24">
-      <path d="M3 20h18M3 16l4-5 4 3 5-7 5 3" fill="none" stroke="#38bdf8" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
-      <path d="M16 7l5 3v5l-5-2z" fill="#38bdf8" fill-opacity="0.2"/>
+    <symbol id="icon-forecast" viewBox="0 0 24 24">
+      <path d="M3 20h18M3 16l4-5 4 3 5-7 5 3" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M16 7l5 3v5l-5-2z" fill="#0EA5E9" fill-opacity="0.2"/>
     </symbol>
 
     <!-- Zero-Downtime Safe Shield -->
-    <symbol id="icon-safe-shield" viewBox="0 0 24 24">
-      <path d="M12 3l8 4v6c0 5-3.5 9.5-8 11-4.5-1.5-8-6-8-11V7l8-4z" fill="none" stroke="#10b981" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
-      <path d="M9 12l2 2 4-4" fill="none" stroke="#10b981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    <symbol id="icon-shield" viewBox="0 0 24 24">
+      <path d="M12 3l8 4v6c0 5-3.5 9.5-8 11-4.5-1.5-8-6-8-11V7l8-4z" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M9 12l2 2 4-4" stroke="#10B981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
     </symbol>
 
     <!-- Spark AI -->
-    <symbol id="icon-copilot-spark" viewBox="0 0 24 24">
-      <path d="M12 2L14.4 8.6L21 11L14.4 13.4L12 20L9.6 13.4L3 11L9.6 8.6L12 2Z" fill="url(#spark-grad)"/>
+    <symbol id="icon-spark" viewBox="0 0 24 24">
+      <path d="M12 2L14.4 8.6L21 11L14.4 13.4L12 20L9.6 13.4L3 11L9.6 8.6L12 2Z" fill="url(#spark-gradient)"/>
       <defs>
-        <linearGradient id="spark-grad" x1="3" y1="2" x2="21" y2="20" gradientUnits="userSpaceOnUse">
-          <stop stop-color="#7856ff"/>
-          <stop offset="1" stop-color="#10b981"/>
+        <linearGradient id="spark-gradient" x1="3" y1="2" x2="21" y2="20" gradientUnits="userSpaceOnUse">
+          <stop stop-color="#8B5CF6"/>
+          <stop offset="1" stop-color="#10B981"/>
         </linearGradient>
       </defs>
     </symbol>
+
+    <!-- Database DuckDB -->
+    <symbol id="icon-database" viewBox="0 0 24 24">
+      <ellipse cx="12" cy="5" rx="9" ry="3" fill="none" stroke="currentColor" stroke-width="1.75"/>
+      <path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3" fill="none" stroke="currentColor" stroke-width="1.75"/>
+      <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5" fill="none" stroke="currentColor" stroke-width="1.75"/>
+    </symbol>
+
+    <!-- Chevron Right -->
+    <symbol id="icon-chevron-right" viewBox="0 0 24 24">
+      <polyline points="9 18 15 12 9 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    </symbol>
+
+    <!-- Copy Icon -->
+    <symbol id="icon-copy" viewBox="0 0 24 24">
+      <rect x="9" y="9" width="13" height="13" rx="2" ry="2" fill="none" stroke="currentColor" stroke-width="1.75"/>
+      <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" fill="none" stroke="currentColor" stroke-width="1.75"/>
+    </symbol>
   </svg>
 
-  <div class="workspace-layout">
-    <!-- Workspace Sidebar -->
-    <aside class="workspace-sidebar">
-      <div class="workspace-sidebar-header">
-        <a href="./index.html" class="workspace-back-link" title="Return to Landing Page">
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M10 13L5 8L10 3" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          <span>Landing Page</span>
-        </a>
-        <div class="workspace-brand">
-          <svg width="28" height="28"><use href="#icon-co2ops-brand"/></svg>
-          <span class="brand-title">CO2Ops Workspace</span>
+  <div class="workspace-viewport">
+
+    <!-- ==================================================================== -->
+    <!-- LEFT RAIL: Navigation, Active Swarm Matrix, Runbooks, Health         -->
+    <!-- ==================================================================== -->
+    <aside class="workspace-rail" id="workspace-rail">
+      
+      <!-- Rail Header / Brand -->
+      <div class="rail-header">
+        <div class="brand-badge">
+          <svg class="brand-icon" width="28" height="28"><use href="#icon-brand"/></svg>
+          <div class="brand-meta">
+            <span class="brand-name">CO2Ops</span>
+            <span class="brand-tag">FinOps & GreenOps Console</span>
+          </div>
         </div>
+        <a href="./index.html" class="nav-back-pill" title="Return to Landing Page">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+          <span>Home</span>
+        </a>
       </div>
 
-      <!-- Session Management -->
-      <div class="session-card">
-        <div class="session-card-title">Session Management</div>
-        <div class="session-info-row">
-          <span class="session-label">User ID:</span>
-          <code id="ws-user-id" class="session-val">Loading...</code>
-        </div>
-        <div class="session-info-row">
-          <span class="session-label">Session:</span>
-          <code id="ws-session-id" class="session-val">Loading...</code>
-        </div>
-        <button id="ws-new-session-btn" class="btn-new-session">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
-          <span>Create New Session</span>
+      <!-- Action: New Audit Session Button -->
+      <div class="rail-actions">
+        <button id="ws-new-session-btn" class="btn-primary-action">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+          <span>New Audit Session</span>
         </button>
       </div>
 
-      <!-- Active Sub-Agents Status -->
-      <div class="agent-swarm-card">
-        <div class="session-card-title">AWS Sub-Agent Swarm</div>
-        <ul class="swarm-list">
-          <li class="swarm-item online">
-            <svg width="16" height="16"><use href="#icon-ec2-node"/></svg>
-            <span>@optimization_advisor</span>
-            <span class="badge-dot"></span>
-          </li>
-          <li class="swarm-item online">
-            <svg width="16" height="16"><use href="#icon-arima-chart"/></svg>
-            <span>@forecasting_tool</span>
-            <span class="badge-dot"></span>
-          </li>
-          <li class="swarm-item online">
-            <svg width="16" height="16"><use href="#icon-co2-cloud"/></svg>
-            <span>@impact_calculator</span>
-            <span class="badge-dot"></span>
-          </li>
-          <li class="swarm-item online">
-            <svg width="16" height="16"><use href="#icon-safe-shield"/></svg>
-            <span>@safe_executor</span>
-            <span class="badge-dot"></span>
-          </li>
-          <li class="swarm-item online">
-            <svg width="16" height="16"><use href="#icon-graviton-chip"/></svg>
-            <span>@summary_generator</span>
-            <span class="badge-dot"></span>
-          </li>
-        </ul>
+      <!-- Session Meta Card -->
+      <div class="rail-section">
+        <div class="section-label">Active Context</div>
+        <div class="session-stat-card">
+          <div class="stat-row">
+            <span class="stat-key">Session ID</span>
+            <span id="ws-session-id" class="stat-mono">session-initializing</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-key">Operator</span>
+            <span id="ws-user-id" class="stat-mono">user-initializing</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-key">Engine</span>
+            <span class="engine-badge"><span class="pulse-dot"></span> Google ADK 2.9</span>
+          </div>
+        </div>
       </div>
 
-      <!-- Quick Action Prompts -->
-      <div class="quick-prompts-card">
-        <div class="session-card-title">Suggested Actions</div>
-        <div class="quick-chips">
-          <button class="quick-chip" data-prompt="Audit my AWS EC2 fleet in us-east-1 for underutilized instances and carbon waste">
-            🔍 Audit EC2 in us-east-1
+      <!-- Sub-Agent Swarm Status Matrix -->
+      <div class="rail-section">
+        <div class="section-header-flex">
+          <span class="section-label">AWS Agent Swarm (5 Active)</span>
+          <span class="swarm-badge-count">Live</span>
+        </div>
+        <div class="swarm-matrix">
+          <div class="swarm-agent-card" data-agent="optimization_advisor" id="swarm-optimization_advisor">
+            <div class="agent-icon-box"><svg width="15" height="15"><use href="#icon-ec2"/></svg></div>
+            <div class="agent-info">
+              <div class="agent-title">@optimization_advisor</div>
+              <div class="agent-role">DuckDB Telemetry & Rightsizing</div>
+            </div>
+            <div class="agent-status-dot online" title="Agent Online"></div>
+          </div>
+
+          <div class="swarm-agent-card" data-agent="forecasting_tool" id="swarm-forecasting_tool">
+            <div class="agent-icon-box"><svg width="15" height="15"><use href="#icon-forecast"/></svg></div>
+            <div class="agent-info">
+              <div class="agent-title">@forecasting_tool</div>
+              <div class="agent-role">7-Day Statistical ARIMA Models</div>
+            </div>
+            <div class="agent-status-dot online" title="Agent Online"></div>
+          </div>
+
+          <div class="swarm-agent-card" data-agent="impact_calculator" id="swarm-impact_calculator">
+            <div class="agent-icon-box"><svg width="15" height="15"><use href="#icon-carbon"/></svg></div>
+            <div class="agent-info">
+              <div class="agent-title">@impact_calculator</div>
+              <div class="agent-role">FinOps & Carbon Emissions Δ</div>
+            </div>
+            <div class="agent-status-dot online" title="Agent Online"></div>
+          </div>
+
+          <div class="swarm-agent-card" data-agent="safe_executor" id="swarm-safe_executor">
+            <div class="agent-icon-box"><svg width="15" height="15"><use href="#icon-shield"/></svg></div>
+            <div class="agent-info">
+              <div class="agent-title">@safe_executor</div>
+              <div class="agent-role">Zero-Downtime Safe Resizing</div>
+            </div>
+            <div class="agent-status-dot online" title="Agent Online"></div>
+          </div>
+
+          <div class="swarm-agent-card" data-agent="summary_generator" id="swarm-summary_generator">
+            <div class="agent-icon-box"><svg width="15" height="15"><use href="#icon-graviton"/></svg></div>
+            <div class="agent-info">
+              <div class="agent-title">@summary_generator</div>
+              <div class="agent-role">Executive S3 Reports & Decks</div>
+            </div>
+            <div class="agent-status-dot online" title="Agent Online"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- FinOps Playbooks / Runbooks -->
+      <div class="rail-section">
+        <div class="section-label">Automated Playbooks</div>
+        <div class="runbook-list">
+          <button class="runbook-chip" data-prompt="Audit all EC2 instances in us-east-1 for underutilized capacity, overprovisioned resources, and carbon waste">
+            <span class="runbook-icon">🔍</span>
+            <span class="runbook-text">Full Fleet Audit (us-east-1)</span>
           </button>
-          <button class="quick-chip" data-prompt="Forecast 7-day CPU load for i-01a2b3c4d5e6f7g80 using ARIMA">
-            📈 7-Day ARIMA forecast
+          <button class="runbook-chip" data-prompt="Provide a 7-day statistical ARIMA forecast for CPU and memory utilization on instance i-01a2b3c4d5e6f7g80">
+            <span class="runbook-icon">📈</span>
+            <span class="runbook-text">7-Day ARIMA Load Forecast</span>
           </button>
-          <button class="quick-chip" data-prompt="Compare cost and carbon emissions between m5.2xlarge and Graviton m6g.large">
-            ⚖️ Compare m5.2xlarge vs m6g.large
+          <button class="runbook-chip" data-prompt="Compare hourly and monthly cost and carbon emissions between current m5.2xlarge and AWS Graviton m6g.xlarge in us-east-1">
+            <span class="runbook-icon">⚡</span>
+            <span class="runbook-text">Graviton Migration Comparison</span>
           </button>
-          <button class="quick-chip" data-prompt="Execute safe migration of instance i-03c4d5e6f7g8012a to t3.medium with zero downtime">
-            🛡️ Safe migrate i-03c to t3.medium
+          <button class="runbook-chip" data-prompt="Execute forecast-validated safe instance migration for instance i-03c4d5e6f7g8h9i02 to t3.medium with zero downtime">
+            <span class="runbook-icon">🛡️</span>
+            <span class="runbook-text">Safe Instance Rightsize</span>
           </button>
-          <button class="quick-chip" data-prompt="Generate weekly AWS sustainability executive summary report and upload to S3">
-            📑 Generate weekly summary to S3
+          <button class="runbook-chip" data-prompt="Generate weekly AWS sustainability executive summary report with embedded charts and upload to Amazon S3">
+            <span class="runbook-icon">📊</span>
+            <span class="runbook-text">Weekly Executive S3 Report</span>
           </button>
         </div>
       </div>
 
-      <div class="workspace-sidebar-footer">
-        <div class="backend-pill">
-          <span class="status-indicator live"></span>
-          <span>ADK Backend: Port 8080</span>
+      <!-- Rail Footer: Connection Health -->
+      <div class="rail-footer">
+        <div class="health-indicator-card">
+          <div class="health-row">
+            <span class="health-status-dot live"></span>
+            <span class="health-title">Backend Connected</span>
+            <span class="health-port">127.0.0.1:8080</span>
+          </div>
+          <div class="health-sub">Model: <strong id="model-indicator-badge">gemini-2.5-flash</strong></div>
         </div>
       </div>
     </aside>
 
-    <!-- Main Chat Workspace -->
-    <main class="workspace-main">
-      <!-- Top Bar -->
-      <header class="workspace-topbar">
+    <!-- ==================================================================== -->
+    <!-- CENTER STAGE: Topbar, KPI Ribbon, Chat History, Command Center      -->
+    <!-- ==================================================================== -->
+    <main class="workspace-stage">
+      
+      <!-- Top Navigation & Global Controls -->
+      <header class="stage-topbar">
         <div class="topbar-left">
-          <h1 class="topbar-title">🌱 CO2Ops Agent Console</h1>
-          <span class="topbar-sub">Sustainable AWS Operations • Multi-Agent Orchestrator</span>
+          <button id="sidebar-toggle-btn" class="icon-toggle-btn" title="Toggle Sidebar">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+          </button>
+          <div class="stage-title-wrap">
+            <h1 class="stage-heading">CO2Ops Autonomous FinOps & Sustainability Console</h1>
+            <span class="stage-subheading">Intelligent multi-agent orchestration for AWS infrastructure optimization</span>
+          </div>
         </div>
+
         <div class="topbar-right">
-          <div class="badge-region">Region: <strong>us-east-1 (N. Virginia)</strong></div>
-          <a href="./index.html" class="btn-ghost-nav">Home</a>
+          <!-- Region Filter Selector -->
+          <div class="region-selector-wrapper">
+            <span class="region-dot"></span>
+            <select id="active-region-select" class="region-select" title="Active AWS Region">
+              <option value="us-east-1" selected>us-east-1 (N. Virginia)</option>
+              <option value="us-west-2">us-west-2 (Oregon)</option>
+              <option value="eu-west-1">eu-west-1 (Ireland)</option>
+              <option value="ap-south-1">ap-south-1 (Mumbai)</option>
+            </select>
+          </div>
+
+          <!-- Drawer Toggle Button -->
+          <button id="telemetry-drawer-toggle" class="btn-topbar-action active" title="Toggle Fleet Telemetry Drawer">
+            <svg width="15" height="15"><use href="#icon-database"/></svg>
+            <span>Fleet Telemetry</span>
+            <span id="fleet-count-badge" class="pill-badge">10</span>
+          </button>
+
+          <!-- Clear Session / Reset -->
+          <button id="clear-chat-btn" class="btn-topbar-ghost" title="Clear Chat Screen">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+          </button>
         </div>
       </header>
 
-      <!-- Chat History -->
-      <div id="ws-chat-history" class="chat-history-container">
-        <!-- Welcome Message -->
-        <div class="chat-message assistant-msg">
-          <div class="msg-avatar">
-            <svg width="20" height="20"><use href="#icon-copilot-spark"/></svg>
+      <!-- At-a-Glance Fleet KPI Ribbon -->
+      <section class="kpi-ribbon">
+        <div class="kpi-card" id="kpi-nodes">
+          <div class="kpi-meta">
+            <span class="kpi-label">Audited Instances</span>
+            <span class="kpi-tag blue">10 Nodes</span>
           </div>
-          <div class="msg-content">
-            <div class="msg-sender">CO2Ops Orchestrator</div>
-            <div class="msg-text">
-              <p>Welcome to the <strong>CO2Ops Workspace</strong>. I orchestrate specialized agents to continuously audit, forecast, and rightsize your AWS infrastructure.</p>
-              <p>You can ask me to:</p>
-              <ul>
-                <li><strong>Audit infrastructure:</strong> <em>"Find underutilized EC2 instances in us-east-1"</em></li>
-                <li><strong>Forecast load:</strong> <em>"Run 7-day ARIMA forecast for instance i-01a2b3c4"</em></li>
-                <li><strong>FinOps calculation:</strong> <em>"Compare cost and carbon between m5.2xlarge and Graviton m6g.large"</em></li>
-                <li><strong>Safe migration:</strong> <em>"Migrate i-01a2b3c4 to Graviton m6g.large with safety validation"</em></li>
-                <li><strong>Reporting:</strong> <em>"Generate weekly executive report and presentation slides to S3"</em></li>
-              </ul>
+          <div class="kpi-value-wrap">
+            <span class="kpi-value">10</span>
+            <span class="kpi-trend neutral">7 Underutilized</span>
+          </div>
+          <div class="kpi-bar-track"><div class="kpi-bar-fill blue" style="width: 70%;"></div></div>
+        </div>
+
+        <div class="kpi-card" id="kpi-spend">
+          <div class="kpi-meta">
+            <span class="kpi-label">Est. Monthly Spend</span>
+            <span class="kpi-tag amber">On-Demand</span>
+          </div>
+          <div class="kpi-value-wrap">
+            <span class="kpi-value">$2,184<small>.00</small></span>
+            <span class="kpi-trend positive">-$824.50 Potential</span>
+          </div>
+          <div class="kpi-bar-track"><div class="kpi-bar-fill amber" style="width: 62%;"></div></div>
+        </div>
+
+        <div class="kpi-card" id="kpi-carbon">
+          <div class="kpi-meta">
+            <span class="kpi-label">Fleet Carbon Intensity</span>
+            <span class="kpi-tag green">Emissions</span>
+          </div>
+          <div class="kpi-value-wrap">
+            <span class="kpi-value">20.49 <small>kg/day</small></span>
+            <span class="kpi-trend positive">🌿 -7.82 kg/day</span>
+          </div>
+          <div class="kpi-bar-track"><div class="kpi-bar-fill green" style="width: 55%;"></div></div>
+        </div>
+
+        <div class="kpi-card" id="kpi-safety">
+          <div class="kpi-meta">
+            <span class="kpi-label">Zero-Downtime Assurance</span>
+            <span class="kpi-tag purple">Policy Gate</span>
+          </div>
+          <div class="kpi-value-wrap">
+            <span class="kpi-value">100<small>%</small></span>
+            <span class="kpi-trend positive">ARIMA Guarded</span>
+          </div>
+          <div class="kpi-bar-track"><div class="kpi-bar-fill purple" style="width: 100%;"></div></div>
+        </div>
+      </section>
+
+      <!-- Dynamic Multi-Agent Reasoning Stepper (Visible during queries) -->
+      <div id="pipeline-stepper" class="pipeline-stepper" style="display: none;">
+        <div class="stepper-header">
+          <div class="stepper-title">
+            <span class="stepper-spinner"></span>
+            <span>Multi-Agent Execution Pipeline</span>
+          </div>
+          <div class="stepper-timer" id="stepper-timer">Elapsed: 0.0s</div>
+        </div>
+        <div class="stepper-track">
+          <div class="step-node active" id="step-orchestrator">
+            <div class="step-circle"><svg width="12" height="12"><use href="#icon-spark"/></svg></div>
+            <span class="step-label">Orchestrator</span>
+          </div>
+          <div class="step-line" id="line-1"></div>
+          <div class="step-node" id="step-scout">
+            <div class="step-circle"><svg width="12" height="12"><use href="#icon-database"/></svg></div>
+            <span class="step-label">Infra Scout (DuckDB)</span>
+          </div>
+          <div class="step-line" id="line-2"></div>
+          <div class="step-node" id="step-profiler">
+            <div class="step-circle"><svg width="12" height="12"><use href="#icon-ec2"/></svg></div>
+            <span class="step-label">Workload Profiler</span>
+          </div>
+          <div class="step-line" id="line-3"></div>
+          <div class="step-node" id="step-recommender">
+            <div class="step-circle"><svg width="12" height="12"><use href="#icon-graviton"/></svg></div>
+            <span class="step-label">Recommender</span>
+          </div>
+          <div class="step-line" id="line-4"></div>
+          <div class="step-node" id="step-executor">
+            <div class="step-circle"><svg width="12" height="12"><use href="#icon-shield"/></svg></div>
+            <span class="step-label">Safe Execution</span>
+          </div>
+        </div>
+        <div class="stepper-status-msg" id="stepper-status-text">Classifying intent and formulating telemetry parameters...</div>
+      </div>
+
+      <!-- Main Conversation Stream Container -->
+      <div id="ws-chat-history" class="chat-history-container">
+        <!-- Initial Welcome Hero inside Chat -->
+        <div class="chat-welcome-hero" id="chat-welcome-hero">
+          <div class="hero-spark-wrap">
+            <svg class="hero-spark-icon" width="42" height="42"><use href="#icon-spark"/></svg>
+          </div>
+          <h2 class="hero-title">Welcome to the CO2Ops Intelligent Command Console</h2>
+          <p class="hero-subtitle">
+            Know exactly what AWS infrastructure waste is trying to tell you. Complete your stack with autonomous AI-powered sustainability, real-time telemetry audits, and FinOps intelligence.
+          </p>
+
+          <div class="hero-features-grid">
+            <div class="feature-card" data-prompt="Audit all EC2 instances in us-east-1 for underutilized capacity and recommend rightsizing">
+              <div class="feature-icon"><svg width="18" height="18"><use href="#icon-ec2"/></svg></div>
+              <div class="feature-title">Telemetry Audit</div>
+              <div class="feature-desc">Scans DuckDB & CloudWatch metrics to surface underutilized EC2 nodes.</div>
+              <div class="feature-cta">Audit Fleet &rarr;</div>
+            </div>
+
+            <div class="feature-card" data-prompt="Provide a 7-day statistical ARIMA forecast for CPU utilization on instance i-01a2b3c4d5e6f7g80">
+              <div class="feature-icon"><svg width="18" height="18"><use href="#icon-forecast"/></svg></div>
+              <div class="feature-title">ARIMA Forecasting</div>
+              <div class="feature-desc">7-day predictive time-series models for CPU, memory, and carbon footprint.</div>
+              <div class="feature-cta">Generate Forecast &rarr;</div>
+            </div>
+
+            <div class="feature-card" data-prompt="Compare cost and carbon emissions between m5.2xlarge and Graviton m6g.large">
+              <div class="feature-icon"><svg width="18" height="18"><use href="#icon-graviton"/></svg></div>
+              <div class="feature-title">FinOps & Carbon Δ</div>
+              <div class="feature-desc">Calculates real-time price deltas and regional grid carbon reductions.</div>
+              <div class="feature-cta">Compare Instances &rarr;</div>
+            </div>
+
+            <div class="feature-card" data-prompt="Generate weekly AWS sustainability executive summary report with embedded charts to S3">
+              <div class="feature-icon"><svg width="18" height="18"><use href="#icon-shield"/></svg></div>
+              <div class="feature-title">Executive Reporting</div>
+              <div class="feature-desc">Compiles markdown reports and Google Slides with embedded telemetry charts.</div>
+              <div class="feature-cta">Build Summary &rarr;</div>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- Chat Input Form -->
-      <footer class="workspace-input-bar">
-        <form id="ws-chat-form" class="chat-form">
-          <div class="input-wrapper">
-            <input 
-              type="text" 
+      <!-- Command Input Center -->
+      <footer class="workspace-command-center">
+        <!-- Quick Prompts Ribbon -->
+        <div class="command-chips-row">
+          <span class="chips-label">Quick Runbooks:</span>
+          <button class="action-chip" data-prompt="Audit my AWS EC2 fleet in us-east-1 for rightsizing candidates">🔍 Audit us-east-1</button>
+          <button class="action-chip" data-prompt="Forecast 7-day CPU load for i-01a2b3c4d5e6f7g80">📈 Forecast i-01a2</button>
+          <button class="action-chip" data-prompt="Compare cost and carbon between m5.2xlarge and Graviton m6g.large">⚡ Compare to Graviton</button>
+          <button class="action-chip" data-prompt="Execute safe migration of instance i-03c4d5e6f7g8h9i02 to t3.medium">🛡️ Safe migrate i-03c</button>
+          <button class="action-chip" data-prompt="Generate weekly executive sustainability report for all regions">📑 Weekly S3 Report</button>
+        </div>
+
+        <!-- Main Input Container -->
+        <form id="ws-chat-form" class="command-form">
+          <div class="command-input-container">
+            <div class="command-prefix">
+              <svg width="16" height="16"><use href="#icon-spark"/></svg>
+            </div>
+            <textarea 
               id="ws-chat-input" 
-              placeholder="Ask CO2Ops to audit instances, forecast demand, calculate savings, or execute safe rightsizing..." 
-              autocomplete="off"
-              required 
-            />
-            <button type="submit" id="ws-send-btn" class="send-btn" title="Send message">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <line x1="22" y1="2" x2="11" y2="13"></line>
-                <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
-              </svg>
-            </button>
+              class="command-textarea" 
+              placeholder="Ask CO2Ops to audit fleet, forecast demand, calculate carbon impact, or execute safe migration..." 
+              rows="1" 
+              required
+            ></textarea>
+            <div class="command-actions">
+              <span class="shortcut-hint">Press <strong>Enter</strong> to send &bull; <strong>Shift+Enter</strong> for newline</span>
+              <button type="submit" id="ws-send-btn" class="btn-send-command" title="Execute Query (Enter)">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <line x1="22" y1="2" x2="11" y2="13"></line>
+                  <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                </svg>
+              </button>
+            </div>
           </div>
         </form>
-        <div class="input-caption">
-          Powered by AWS Multi-Agent Architecture • Google ADK • Climatiq Emissions API • Zero-Downtime Safe Execution
+
+        <div class="command-status-footer">
+          <span>CO2Ops Engine: Google ADK 2.9 (Gemini 2.5 Flash)</span>
+          <span class="footer-dot">&bull;</span>
+          <span>Zero-Downtime Policy Guarded</span>
+          <span class="footer-dot">&bull;</span>
+          <span>DuckDB In-Memory Telemetry Database</span>
         </div>
       </footer>
     </main>
+
+    <!-- ==================================================================== -->
+    <!-- RIGHT DRAWER: Live EC2 Fleet Telemetry Inspector (Collapsible)       -->
+    <!-- ==================================================================== -->
+    <aside class="telemetry-drawer" id="telemetry-drawer">
+      <div class="drawer-header">
+        <div class="drawer-header-title">
+          <svg width="18" height="18"><use href="#icon-database"/></svg>
+          <span>Fleet Telemetry Inspector</span>
+        </div>
+        <button id="drawer-close-btn" class="drawer-close-btn" title="Close Inspector">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+
+      <!-- Drawer Search & Filter -->
+      <div class="drawer-search-box">
+        <input type="text" id="fleet-search-input" placeholder="Filter by instance ID, type, or region..." />
+      </div>
+
+      <!-- Fleet Instance Cards Container -->
+      <div class="drawer-body" id="fleet-list-container">
+        <!-- Rendered dynamically by main.js -->
+        <div class="drawer-loading-indicator">Loading fleet benchmark data...</div>
+      </div>
+
+      <!-- Drawer Footer Summary -->
+      <div class="drawer-footer">
+        <div class="drawer-footer-row">
+          <span>Regional Grid Carbon:</span>
+          <strong id="drawer-grid-intensity">0.379 kg CO₂/kWh</strong>
+        </div>
+        <button id="btn-audit-selected-region" class="btn-drawer-full">
+          Audit Selected Region Now &rarr;
+        </button>
+      </div>
+    </aside>
+
   </div>
 
   <script src="./main.js"></script>
