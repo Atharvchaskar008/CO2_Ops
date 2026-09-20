@@ -33,12 +33,28 @@ if (-not (Get-Command aws -ErrorAction SilentlyContinue)) {
 
 # 1. Check AWS CLI Authentication
 Write-Host "`n[1/7] Verifying AWS CLI authentication..." -ForegroundColor Yellow
+$CallerIdentity = $null
 try {
-    $CallerIdentity = aws sts get-caller-identity | ConvertFrom-Json
-    $AccountId = $CallerIdentity.Account
-    Write-Host "Authenticated as Account: $AccountId ($($CallerIdentity.Arn))" -ForegroundColor Green
+    $IdentityOutput = aws sts get-caller-identity 2>&1
+    if ($LASTEXITCODE -eq 0) {
+        $CallerIdentity = $IdentityOutput | Out-String | ConvertFrom-Json
+    }
 } catch {
-    Write-Host "Error: AWS CLI is not configured or authenticated. Run 'aws configure' first." -ForegroundColor Red
+    $CallerIdentity = $null
+}
+
+if (-not $CallerIdentity -or -not $CallerIdentity.Account) {
+    Write-Host "Error: AWS CLI is not configured or authenticated." -ForegroundColor Red
+    Write-Host "Please run 'aws configure' and enter your AWS Access Key ID, Secret Access Key, and default region (e.g., us-east-1)." -ForegroundColor Yellow
+    exit 1
+}
+
+$AccountId = $CallerIdentity.Account
+Write-Host "Authenticated as Account: $AccountId ($($CallerIdentity.Arn))" -ForegroundColor Green
+
+# Verify Docker is running
+if (-not (Get-Command docker -ErrorAction SilentlyContinue)) {
+    Write-Host "`nError: 'docker' command not found. Please ensure Docker Desktop is installed and running." -ForegroundColor Red
     exit 1
 }
 
