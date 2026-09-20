@@ -219,7 +219,7 @@ def send_message(message):
         parts = item.get("content", {}).get("parts", [])
         for part in parts:
             if not part.get("functionResponse") and part.get("text"):
-                assistant_message = part.get("text")
+                assistant_message += part.get("text")
 
     return assistant_message
 
