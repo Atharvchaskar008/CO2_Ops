@@ -1,10 +1,10 @@
-from co2ops_agent.bedrock.agent import BedrockAgent
-from co2ops_agent.bedrock.state import CO2OpsState
+from google.adk.agents import LlmAgent
 
-infra_recommender_agent = BedrockAgent(
+infra_recommender_agent = LlmAgent(
     name="infra_recommender",
+    model="gemini-2.0-flash",
     description="Providing well crafted professional recommendations",
-    system_instruction="""
+    instruction="""
     Your main goal is delivering final recommendations based on the found analysis: 
     
     Analysis:
@@ -23,9 +23,8 @@ infra_recommender_agent = BedrockAgent(
     - [Potential savings based on current and target instance]
     -----------------------------------
 
-    Format the recommendations in a professional format separated by horizontal bars.
+    Format the recommendations in a professional format seperated by horizontal bars.
 
     """,
-    input_state_key="analysis_results",
-    output_state_key="final_recommendations"
+    output_key="final_recommendations"
 )

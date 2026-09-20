@@ -13,6 +13,7 @@ import matplotlib.dates as mdates
 
 from co2ops_agent.agents.forecaster_agent.agent import generate_aws_forecast
 from co2ops_agent.agents.optimization_advisor_agent.sub_agents.infra_scout_agent.agent import DEFAULT_AWS_SERVERS
+from google.adk.tools import ToolContext
 
 logger = logging.getLogger(__name__)
 
@@ -191,7 +192,7 @@ def upload_to_s3_or_local(local_file_path: str, bucket_name: str = "") -> str:
     return f"file:///{os.path.abspath(local_file_path).replace('\\', '/')}"
 
 
-def create_google_doc(title: str, body_content: str, tool_context=None, state=None) -> dict:
+def create_google_doc(title: str, body_content: str, tool_context: ToolContext = None) -> dict:
     """
     Creates and saves the weekly sustainability report.
     Uploads charts to Amazon S3 (or local report directory), generates a clean report document,
@@ -222,25 +223,14 @@ def create_google_doc(title: str, body_content: str, tool_context=None, state=No
 
     report_url = upload_to_s3_or_local(report_file)
 
-    if state is not None:
-        if hasattr(state, "custom_metadata"):
-            state.custom_metadata["chart_links"] = chart_to_links
-        elif hasattr(state, "set"):
-            state.set("chart_links", chart_to_links)
-        elif isinstance(state, dict):
-            state["chart_links"] = chart_to_links
-
-    if tool_context is not None:
-        if hasattr(tool_context, "state") and isinstance(tool_context.state, dict):
-            tool_context.state['chart_links'] = chart_to_links
+    if tool_context:
+        tool_context.state['chart_links'] = chart_to_links
 
     return {
         "message": f"Your weekly CO2Ops AWS Sustainability report has been generated successfully.",
         "report_url": report_url,
         "charts": chart_to_links
     }
-
-generate_sustainability_report = create_google_doc
 
 
 def get_forecast_information() -> dict:

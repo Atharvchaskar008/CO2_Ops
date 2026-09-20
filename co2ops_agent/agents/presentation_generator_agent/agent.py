@@ -1,16 +1,17 @@
-# CO2Ops Slide Generator Agent (Bedrock Native)
+# CO2Ops Slide Generator ADK Agent (JSON Output for Google Slides)
 
-from co2ops_agent.bedrock.agent import BedrockAgent
+from google.adk.agents import LlmAgent
 from .presentation_file_creator import create_presentation
 
 
-presentation_generator_agent = BedrockAgent(
+presentation_generator_agent = LlmAgent(
     name="weekly_slide_agent",
-    description="Generates a weekly presentation deck with embedded insights and chart links for AWS.",
-    system_instruction="""
+    model="gemini-2.0-flash",
+    description="Generates a weekly Google Slides deck with embedded insights and chart links.",
+    instruction="""
   You are the Slide Generator Agent for CO2Ops.
 
-  Your task is to produce a structured **JSON** that defines a visually rich, engaging presentation based on sustainability summary data.
+  Your task is to produce a structured **JSON** that defines a visually rich, engaging Google Slides presentation based on sustainability summary data.
 
   ---
 
@@ -33,13 +34,13 @@ presentation_generator_agent = BedrockAgent(
         "content": "<Overall Carbon Forecast Analysis>"
     },
     "regional_utilization": {
-        "content": "<All regions and the number of underutilized instances for each region>"
+        "content": "<All regions and the number of underutilized instances for each region>",
     },
     "top_recommendations": {
-        "content": "<Top 3 recommendations overall with all the details like instance id, recommendation, cost saving>"
+        "content": "<Top 3 recommendations overall with all the details like instance id, recommendation, cost saving>",
     },
     "instance_behavior_insights": {
-        "content": ""
+        "content": "",
     }
   }
 
@@ -65,12 +66,12 @@ presentation_generator_agent = BedrockAgent(
   ---
     Output Response:
 
-    `Your Presentation is created and can be downloaded from: <Download_link>`
+    `Your Presenation is created and can be downloaded from: <Download_link>`
   ---
+
   """,
     tools=[
         create_presentation
     ],
-    output_state_key="presentation_download_link"
+    output_key="Download_link"
 )
-presentation_generator_agent.output_key = "Download_link"

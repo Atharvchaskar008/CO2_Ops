@@ -1,8 +1,9 @@
 # CO2Ops - Local Development Runner
-# Launches the AWS-native FastAPI Backend on port 8080 and Custom Frontend on port 8501.
+# Launches the AWS-migrated ADK Backend on port 8080 and Custom Frontend on port 8501.
 
 $VenvDir = Join-Path $PSScriptRoot ".venv"
 $VenvPython = Join-Path $VenvDir "Scripts\python.exe"
+$VenvAdk = Join-Path $VenvDir "Scripts\adk.exe"
 
 if (-not (Test-Path $VenvPython)) {
     Write-Host "Creating Virtual Environment at $VenvDir..." -ForegroundColor Cyan
@@ -15,12 +16,11 @@ Write-Host "Activating Virtual Environment..." -ForegroundColor Green
 Write-Host "Ensuring dependencies are installed..." -ForegroundColor Cyan
 & $VenvPython -m pip install -q -r (Join-Path $PSScriptRoot "co2ops_agent\requirements.txt")
 
-Write-Host "`nStarting CO2Ops FastAPI Backend Server on http://127.0.0.1:8080..." -ForegroundColor Yellow
+Write-Host "`nStarting ADK Backend Server on http://127.0.0.1:8080..." -ForegroundColor Yellow
 $BackendJob = Start-Job -Name "CO2Ops_Backend" -ScriptBlock {
-    param($PythonExe, $RootDir)
-    Set-Location $RootDir
-    & $PythonExe -m uvicorn co2ops_agent.api:app --port 8080 --host 127.0.0.1
-} -ArgumentList $VenvPython, $PSScriptRoot
+    param($AgentPath, $AdkExe)
+    & $AdkExe api_server --port 8080 --host 127.0.0.1 --allow_origins "*" --auto_create_session $AgentPath
+} -ArgumentList (Join-Path $PSScriptRoot "co2ops_agent"), $VenvAdk
 
 Start-Sleep -Seconds 3
 

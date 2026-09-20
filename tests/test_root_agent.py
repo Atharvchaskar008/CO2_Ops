@@ -18,7 +18,7 @@ def test_sub_agents_attached_to_root():
     assert "OptimizationAdvisor" in sub_agent_names
     assert "impact_calculator_agent" in sub_agent_names
     assert "forecasting_tool_agent" in sub_agent_names
-    assert "safe_executor_agent" in sub_agent_names or "SafeExecutor" in sub_agent_names
+    assert "safe_executor_agent" in sub_agent_names
     assert "weekly_summary_agent" in sub_agent_names
 
 def test_impact_calculator_agent():
@@ -30,7 +30,7 @@ def test_forecaster_agent():
     assert "EC2" in forecaster_agent.description or "AWS" in forecaster_agent.description
 
 def test_safe_executor_agent():
-    assert safe_executor_agent.name in ("safe_executor_agent", "SafeExecutor")
+    assert safe_executor_agent.name == "safe_executor_agent"
     assert "EC2" in safe_executor_agent.description or "AWS" in safe_executor_agent.description
 
 def test_optimization_advisor_agent():

@@ -131,10 +131,10 @@ document.addEventListener('DOMContentLoaded', () => {
       if (sessionIdEl) sessionIdEl.textContent = sessionId;
 
       try {
-        await fetch(`${API_BASE_URL}/api/sessions`, {
+        await fetch(`${API_BASE_URL}/apps/${APP_NAME}/users/${userId}/sessions/${sessionId}`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ user_id: userId })
+          body: JSON.stringify({})
         });
       } catch (err) {
         console.warn('Backend session endpoint notice:', err);
@@ -151,7 +151,7 @@ document.addEventListener('DOMContentLoaded', () => {
       });
     }
 
-    // Send message to CO2Ops FastAPI backend
+    // Send message to ADK backend
     const sendMessage = async (messageText) => {
       if (!messageText) return;
 
@@ -162,39 +162,43 @@ document.addEventListener('DOMContentLoaded', () => {
       showThinking();
 
       try {
-        const res = await fetch(`${API_BASE_URL}/api/chat`, {
+        const res = await fetch(`${API_BASE_URL}/run`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            message: messageText,
+            app_name: APP_NAME,
             user_id: userId,
-            session_id: sessionId
+            session_id: sessionId,
+            new_message: {
+              role: 'user',
+              parts: [{ text: messageText }]
+            }
           })
         });
 
         hideThinking();
 
         if (res.ok) {
-          const data = await res.json();
+          const events = await res.json();
           let fullText = '';
 
-          if (data && data.response) {
-            fullText = data.response;
-          } else if (Array.isArray(data)) {
-            data.forEach((event) => {
-              if (event.response) fullText += event.response;
-              else if (event.content && event.content.parts) {
-                event.content.parts.forEach((p) => {
-                  if (p.text) fullText += p.text;
-                });
-              } else if (event.step_details && event.step_details.model_output) {
-                const parts = event.step_details.model_output.parts || [];
-                parts.forEach((p) => {
+          events.forEach((event) => {
+            // ADK format 1: step_details
+            if (event.step_details && event.step_details.step_type === 'model_output') {
+              const modelOutput = event.step_details.model_output;
+              if (modelOutput && modelOutput.parts) {
+                modelOutput.parts.forEach((p) => {
                   if (p.text) fullText += p.text;
                 });
               }
-            });
-          }
+            }
+            // ADK format 2: direct content
+            if (event.content && event.content.parts) {
+              event.content.parts.forEach((p) => {
+                if (!p.functionResponse && p.text) fullText += p.text;
+              });
+            }
+          });
 
           if (fullText.trim()) {
             appendMessage('assistant', fullText);
@@ -208,7 +212,7 @@ document.addEventListener('DOMContentLoaded', () => {
       } catch (err) {
         hideThinking();
         console.error('Fetch error:', err);
-        appendMessage('assistant', `Could not reach CO2Ops FastAPI backend on ${API_BASE_URL}. Ensure the backend is running on port 8080.`);
+        appendMessage('assistant', `Could not reach ADK backend on ${API_BASE_URL}. Ensure the backend is running on port 8080.`);
       } finally {
         chatInput.disabled = false;
         if (sendBtn) sendBtn.disabled = false;
