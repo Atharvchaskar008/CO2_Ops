@@ -158,7 +158,7 @@ def execute_forecast_query(query_or_text: str) -> dict:
 
 forecasting_tool_agent = LlmAgent(
     name="forecasting_tool_agent",
-    model="gemini-2.0-flash",
+    model=os.getenv("GEMINI_MODEL", "gemini-2.5-flash"),
     description="Forecasts CPU, memory, or carbon usage for AWS EC2 instances using statistical ARIMA time-series models.",
     instruction="""
     You are an AWS infrastructure forecasting agent that predicts future CPU utilization, memory utilization, or carbon emissions for AWS EC2 instances over 7 days.

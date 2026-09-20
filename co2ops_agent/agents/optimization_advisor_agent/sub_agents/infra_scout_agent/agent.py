@@ -188,7 +188,7 @@ def execute_server_query(sql: str) -> dict:
 # Define the ADK agent
 infra_scout_agent = LlmAgent(
     name="aws_server_analyst",
-    model="gemini-2.0-flash",
+    model=os.getenv("GEMINI_MODEL", "gemini-2.5-flash"),
     description="Fetches AWS EC2 server metrics from the infrastructure database for downstream analysis.",
     instruction="""
     You are responsible for retrieving AWS EC2 server telemetry from the database table:

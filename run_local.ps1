@@ -16,9 +16,12 @@ Write-Host "Activating Virtual Environment..." -ForegroundColor Green
 Write-Host "Ensuring dependencies are installed..." -ForegroundColor Cyan
 & $VenvPython -m pip install -q -r (Join-Path $PSScriptRoot "co2ops_agent\requirements.txt")
 
+$env:PYTHONIOENCODING = "utf-8"
+
 Write-Host "`nStarting ADK Backend Server on http://127.0.0.1:8080..." -ForegroundColor Yellow
 $BackendJob = Start-Job -Name "CO2Ops_Backend" -ScriptBlock {
     param($AgentPath, $AdkExe)
+    $env:PYTHONIOENCODING = "utf-8"
     & $AdkExe api_server --port 8080 --host 127.0.0.1 --allow_origins "*" --auto_create_session $AgentPath
 } -ArgumentList (Join-Path $PSScriptRoot "co2ops_agent"), $VenvAdk
 

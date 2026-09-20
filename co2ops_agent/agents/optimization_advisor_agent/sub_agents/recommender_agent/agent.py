@@ -1,8 +1,9 @@
+import os
 from google.adk.agents import LlmAgent
 
 infra_recommender_agent = LlmAgent(
     name="infra_recommender",
-    model="gemini-2.0-flash",
+    model=os.getenv("GEMINI_MODEL", "gemini-2.5-flash"),
     description="Providing well crafted professional recommendations",
     instruction="""
     Your main goal is delivering final recommendations based on the found analysis: 

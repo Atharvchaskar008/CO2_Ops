@@ -218,7 +218,7 @@ def get_carbon_emissions_per_hour(current_instance_type: str, current_region: st
 
 impact_calculator_agent = Agent(
     name="impact_calculator_agent",
-    model="gemini-2.0-flash",
+    model=os.getenv("GEMINI_MODEL", "gemini-2.5-flash"),
     description="Agent that compares cost and carbon impact of changing AWS EC2 instance types.",
     instruction="""
     You are an AWS Green Cloud Optimization Assistant that helps users understand the environmental and financial impact of changing their AWS EC2 instance types.

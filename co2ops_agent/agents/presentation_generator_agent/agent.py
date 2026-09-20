@@ -1,12 +1,13 @@
 # CO2Ops Slide Generator ADK Agent (JSON Output for Google Slides)
 
+import os
 from google.adk.agents import LlmAgent
 from .presentation_file_creator import create_presentation
 
 
 presentation_generator_agent = LlmAgent(
     name="weekly_slide_agent",
-    model="gemini-2.0-flash",
+    model=os.getenv("GEMINI_MODEL", "gemini-2.5-flash"),
     description="Generates a weekly Google Slides deck with embedded insights and chart links.",
     instruction="""
   You are the Slide Generator Agent for CO2Ops.

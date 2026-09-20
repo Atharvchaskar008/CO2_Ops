@@ -26,7 +26,7 @@ if gemini_key:
     os.environ["GEMINI_API_KEY"] = gemini_key
     os.environ["GOOGLE_API_KEY"] = gemini_key
 
-GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-2.0-flash")
+GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-2.5-flash")
 
 root_agent = Agent(
     name="co2ops_agent",

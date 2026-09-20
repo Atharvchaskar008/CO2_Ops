@@ -1,10 +1,11 @@
+import os
 from google.adk.agents import LlmAgent
 from google.adk.tools.agent_tool import AgentTool
 from .tools import change_machine_type, is_safe_to_migrate, get_forecast_information
 
 safe_executor_agent = LlmAgent(
     name="safe_executor_agent",
-    model="gemini-2.0-flash",
+    model=os.getenv("GEMINI_MODEL", "gemini-2.5-flash"),
     description="Safely executes AWS EC2 infrastructure rightsizing from current to target instance type.",
     instruction="""
     You are responsible for validating whether an AWS EC2 instance migration is safe for the given instance ID and executing the migration using the provided tools.
